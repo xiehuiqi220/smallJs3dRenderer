@@ -27,11 +27,11 @@ const myRender = new Renderer(myCanvas);
 let offsetY = 0;
 
 (function animate() {
-  // vec3.add(cameraDir, [0, 0, 0], [0, offsetY, 0]);
-  // mat4.lookAt(viewMatrix, cameraPos, cameraDir, Y_UP);
+  vec3.add(cameraDir, [0, 0, 0], [0, offsetY, 0]);
+  mat4.lookAt(viewMatrix, cameraPos, cameraDir, Y_UP);
 
   myRender.render(Scene, viewMatrix);
   offsetY += 0.0;
   if (offsetY > 3) offsetY = 0;
-  setTimeout(animate, 100);
+  setTimeout(animate, 50);
 })();
