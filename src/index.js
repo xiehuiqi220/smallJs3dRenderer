@@ -13,7 +13,7 @@ const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
 
 const fieldOfView = (45 * Math.PI) / 180;
 const cameraNear = 1.0;
-const cameraFar = 100.0;
+const cameraFar = 20.0;
 const aspect = CAN_WIDTH / CAN_HEIGHT;
 
 let projectionMatrix = mat4.create();
@@ -29,9 +29,11 @@ let offsetY = 0;
 (function animate() {
   vec3.add(cameraDir, [0, 0, 0], [0, offsetY, 0]);
   mat4.lookAt(viewMatrix, cameraPos, cameraDir, Y_UP);
+  console.log(viewMatrix);
+  console.log(projectionMatrix);
 
-  myRender.render(Scene, viewMatrix);
+  myRender.render(Scene, viewMatrix, projectionMatrix);
   offsetY += 0.0;
-  if (offsetY > 3) offsetY = 0;
-  setTimeout(animate, 50);
+  if (offsetY > 4) offsetY = 0;
+  //setTimeout(animate, 50);
 })();

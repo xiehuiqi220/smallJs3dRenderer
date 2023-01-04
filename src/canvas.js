@@ -8,10 +8,16 @@ class Canvas {
     this.clear();
   }
 
+  drawXY() {
+    this.drawLine(0, this.height / 2, this.width, this.height / 2, "red");
+    this.drawLine(this.width / 2, 0, this.width / 2, this.height, "green");
+  }
+
   clear() {
     //把画布全所有像素设置为#000
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, this.width, this.height);
+    this.drawXY();
   }
 
   //绘制一个顶点，用圆圈代替
@@ -29,11 +35,11 @@ class Canvas {
   }
 
   //绘制一条直线
-  drawLine(x0, y0, x1, y1) {
+  drawLine(x0, y0, x1, y1, color = "#fff") {
     this.ctx.beginPath();
     this.ctx.moveTo(x0, y0);
     this.ctx.lineTo(x1, y1);
-    this.ctx.strokeStyle = "#fff";
+    this.ctx.strokeStyle = color;
     this.ctx.stroke();
   }
 
