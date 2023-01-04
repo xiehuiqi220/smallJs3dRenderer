@@ -15,9 +15,20 @@ const fieldOfView = (45 * Math.PI) / 180;
 const cameraNear = 1.0;
 const cameraFar = 20.0;
 const aspect = CAN_WIDTH / CAN_HEIGHT;
+const IS_PERST = false;
 
 let projectionMatrix = mat4.create();
-mat4.perspective(projectionMatrix, fieldOfView, aspect, cameraNear, cameraFar);
+if (IS_PERST) {
+  mat4.perspective(
+    projectionMatrix,
+    fieldOfView,
+    aspect,
+    cameraNear,
+    cameraFar
+  );
+} else {
+  mat4.ortho(projectionMatrix, -1, 1, -1, 1, 0, 1);
+}
 
 const viewMatrix = mat4.create();
 const cameraPos = [10, 10, 10]; //摄影机位置，世界坐标
@@ -33,7 +44,7 @@ let offsetY = 0;
   console.log(projectionMatrix);
 
   myRender.render(Scene, viewMatrix, projectionMatrix);
-  offsetY += 0.0;
+  offsetY += 0.1;
   if (offsetY > 4) offsetY = 0;
   //setTimeout(animate, 50);
 })();

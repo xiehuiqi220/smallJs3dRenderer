@@ -6,8 +6,8 @@ class Renderer {
   }
 
   ndcToScreen(glPos) {
-    glPos[0] = (glPos[0] / glPos[3]) * 100 + 400;
-    glPos[1] = (-glPos[1] / glPos[3]) * 100 + 250;
+    glPos[0] = (glPos[0] / glPos[3]) * 100 + this.myCanvas.width / 2;
+    glPos[1] = (-glPos[1] / glPos[3]) * 100 + this.myCanvas.height / 2;
     return glPos;
   }
 
@@ -21,14 +21,14 @@ class Renderer {
       //绘制顶点
       obj.vertices.forEach((vertex) => {
         const glPos = vec4.create();
-        //console.log("origin", vertex);
+        console.log("origin", vertex);
         vec4.transformMat4(glPos, vertex, viewMatrix);
 
-        //console.log("after view:", glPos);
+        console.log("after view:", glPos);
         if (projectionMatrix) {
           vec4.transformMat4(glPos, glPos, projectionMatrix);
         }
-        //console.log("after project", glPos);
+        console.log("after project", glPos);
 
         //console.log(glPos);
         this.ndcToScreen(glPos);
