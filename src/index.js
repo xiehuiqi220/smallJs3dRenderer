@@ -27,7 +27,7 @@ if (IS_PERST) {
     cameraFar
   );
 } else {
-  mat4.ortho(projectionMatrix, -1, 1, -1, 1, 0, 1);
+  mat4.ortho(projectionMatrix, -1, 1, -1, 1, 0, 100);
 }
 
 const viewMatrix = mat4.create();
