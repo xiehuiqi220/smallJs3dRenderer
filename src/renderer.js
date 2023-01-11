@@ -6,8 +6,8 @@ class Renderer {
   }
 
   ndcToScreen(glPos) {
-    glPos[0] = (glPos[0] / glPos[3]) * 100 + this.myCanvas.width / 2;
-    glPos[1] = (-glPos[1] / glPos[3]) * 100 + this.myCanvas.height / 2;
+    glPos[0] = (glPos[0] / glPos[3]) * this.myCanvas.width / 2 + this.myCanvas.width / 2;
+    glPos[1] = (-glPos[1] / glPos[3]) * this.myCanvas.height / 2 + this.myCanvas.height / 2;
     return glPos;
   }
 
