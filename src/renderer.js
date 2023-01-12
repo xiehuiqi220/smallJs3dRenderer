@@ -20,9 +20,27 @@ class Renderer {
 
       //绘制顶点
       obj.vertices.forEach((vertex) => {
+        vertex[3] = 1;//增加xyzw的w，默认为1
+        if (!obj.translate) {
+          obj.translate = [0, 0, 0];//一致性处理
+        } 
+        if (!obj.rotate) {
+          obj.rotate = [0, 0, 0];//一致性处理
+        }
         const glPos = vec4.create();
+
+        //处理模型视图
+        const modelMartix = mat4.create();
+        mat4.translate(modelMartix, modelMartix, obj.translate);
+        mat4.rotateX(modelMartix, modelMartix, obj.rotate[0]);
+        mat4.rotateY(modelMartix, modelMartix, obj.rotate[1]);
+        mat4.rotateZ(modelMartix, modelMartix, obj.rotate[2]);
+        vec4.transformMat4(glPos, vertex, modelMartix);
+        console.log(glPos);
+
+        //处理相机视图
         //console.log("origin", vertex);
-        vec4.transformMat4(glPos, vertex, viewMatrix);
+        vec4.transformMat4(glPos, glPos, viewMatrix);
 
         //console.log("after view:", glPos);
         if (projectionMatrix) {
