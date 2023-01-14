@@ -21,6 +21,7 @@ class Renderer {
       const clip = [];
 
       //绘制顶点
+      obj.vertices = obj.vertices || [];
       obj.vertices.forEach((vertex) => {
         vertex[3] = 1;//增加xyzw的w，默认为1
         if (!obj.translate) {
@@ -57,6 +58,7 @@ class Renderer {
       });
 
       //绘制直线
+      obj.lines = obj.lines || [];
       obj.lines.forEach((line) => {
         const start = line[0];
         const end = line[1];

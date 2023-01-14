@@ -33,7 +33,7 @@ const Scene = [
   {
     hidden: 0,
     id: "tetrahedron",
-    translate:[2,3,4],
+    translate:[2,2,2],
     vertices: [
       //一个三棱锥体有4个点
       [0, 0, 0],
@@ -49,6 +49,22 @@ const Scene = [
       [1, 2],
       [1, 3],
       [2, 3]
+    ]
+  },
+  {
+    id:"plane",
+    translate:[0,-2,0],
+    vertices:[
+      [-2,0,2],
+      [-2,0,-2],
+      [2,0,2],
+      [2,0,-2]
+    ],
+    lines:[
+      [0,1],
+      [0,2],
+      [1,3],
+      [2,3]
     ]
   }
 ];
