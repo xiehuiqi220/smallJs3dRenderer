@@ -1,8 +1,10 @@
 import { mat4, vec4 } from "gl-matrix";
+import { log } from "./util";
 
 class Renderer {
-  constructor(canvas) {
+  constructor(canvas,options = {}) {
     this.myCanvas = canvas;
+    this.showLog = options.showLog;
   }
 
   ndcToScreen(glPos) {
@@ -36,7 +38,7 @@ class Renderer {
         mat4.rotateY(modelMartix, modelMartix, obj.rotate[1]);
         mat4.rotateZ(modelMartix, modelMartix, obj.rotate[2]);
         vec4.transformMat4(glPos, vertex, modelMartix);
-        console.log(glPos);
+        this.showLog && log(glPos);
 
         //处理相机视图
         //console.log("origin", vertex);
