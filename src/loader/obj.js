@@ -3,9 +3,9 @@ import ObjFileParser from 'obj-file-parser';
 function ObjParser(txt){
     const objFile = new ObjFileParser(txt);
     const output = objFile.parse(); // s
+    console.log("origin obj",output);
 
     const myScene = toMyScene(output);
-    console.log("origin obj",myScene);
     return myScene;
 }
 
@@ -22,11 +22,15 @@ const toMyScene = function(objJSON){
     for(var obj of objJSON.models){
         const m = {
             id: obj.name || "",
-            vertices: []
+            vertices: [],
+            lines: []
         }
 
         for(const v of obj.vertices){
             m.vertices.push([v.x,v.y,v.z]);
+        }
+        for(const l of obj.lines){
+            m.lines.push([l[0].vertexIndex - 1,l[1].vertexIndex - 1]);//obj中index从1开始，所以要减去1
         }
 
         scene.models.push(m);

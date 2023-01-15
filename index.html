@@ -30,7 +30,7 @@
           const txt = e.target.result;
 
           const scene = ObjParser(txt);
-          console.log(scene);
+          console.log("after",scene);
           window.dispatchEvent(new CustomEvent('changeScene', { detail: scene }));
         };
       })(f);
