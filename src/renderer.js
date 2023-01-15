@@ -16,7 +16,8 @@ class Renderer {
   render(scene, viewMatrix, projectionMatrix) {
     this.myCanvas.clear();
 
-    for (const obj of scene) {
+    const models = scene.models || [];
+    for (const obj of models) {
       if (obj.hidden) continue;
       const clip = [];
 

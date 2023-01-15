@@ -1,5 +1,5 @@
 import "./styles.css";
-import { Scene } from "./scene.js";
+import { SceneExample } from "./scene.js";
 import { Renderer } from "./renderer";
 import { Y_UP } from "./constants";
 import { log } from "./util";
@@ -16,6 +16,7 @@ const PARAMS = {
   cameraZ: 10,
   fieldOfView: 45
 };
+let Scene = null;
 
 gui.add(PARAMS, 'projectionMode', { "透视": 1, "正交": 0 }).onChange((v) => {
   setProjectionMode();
@@ -23,16 +24,16 @@ gui.add(PARAMS, 'projectionMode', { "透视": 1, "正交": 0 }).onChange((v) => 
 gui.add(PARAMS, "showLog").onChange((v) => {
   myRender.showLog = v;
 });
-gui.add(PARAMS, "cameraX", 0, 100).onChange((v) => {
+gui.add(PARAMS, "cameraX", -100, 100).onChange((v) => {
   setCamera();
 });
-gui.add(PARAMS, "cameraY", 0, 100).onChange((v) => {
+gui.add(PARAMS, "cameraY", -100, 100).onChange((v) => {
   setCamera();
 });
-gui.add(PARAMS, "cameraZ", 0, 100).onChange((v) => {
+gui.add(PARAMS, "cameraZ", -100, 100).onChange((v) => {
   setCamera();
 });
-gui.add(PARAMS, "fieldOfView", 45, 90).onChange((v) => {
+gui.add(PARAMS, "fieldOfView", 30, 90).onChange((v) => {
   setProjectionMode();
 });
 
@@ -86,11 +87,20 @@ function animate() {
 
   myRender.render(Scene, viewMatrix, projectionMatrix);
   setTimeout(animate, 50);
-};
+}
+
+function setSceneData(){
+  Scene = SceneExample;
+
+  window.addEventListener("changeScene",function(e){
+    Scene = e.detail;
+  });
+}
 
 //页面入口
 (function main() {
   setCamera();
   setProjectionMode();
+  setSceneData();
   animate();
 })();

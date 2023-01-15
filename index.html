@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Parcel Sandbox</title>
-    <meta charset="UTF-8" />
-  </head>
 
-  <body>
-    <canvas id="myCanvas" width="400" height="400"> </canvas>
-    <script src="src/index.js"></script>
-  </body>
+<head>
+  <title>Parcel Sandbox</title>
+  <meta charset="UTF-8" />
+  <style>
+    form {
+      position: absolute;
+      right: 0;
+      top: 200px;
+    }
+  </style>
+  <script src="src/loader/obj.js"></script>
+</head>
+
+<body>
+  <canvas id="myCanvas" width="400" height="400"> </canvas>
+  <form enctype="multipart/form-data">
+    <input id="upload" type="file" accept=".obj" name="files">
+  </form>
+  <script>
+    function handleFileSelect(evt) {
+      let files = evt.target.files;
+      let f = files[0];
+      if(!f)return;
+      let reader = new FileReader();
+      reader.onload = (function (theFile) {
+        return function (e) {
+          const txt = e.target.result;
+
+          const scene = ObjParser(txt);
+          console.log(scene);
+          window.dispatchEvent(new CustomEvent('changeScene', { detail: scene }));
+        };
+      })(f);
+      reader.readAsText(f);
+    }
+
+    document.getElementById('upload').addEventListener('change', handleFileSelect, false);
+  </script>
+  <script src="src/index.js"></script>
+</body>
+
 </html>
