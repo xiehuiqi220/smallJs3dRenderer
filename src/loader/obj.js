@@ -23,7 +23,8 @@ const toMyScene = function(objJSON){
         const m = {
             id: obj.name || "",
             vertices: [],
-            lines: []
+            lines: [],
+            faces: []
         }
 
         for(const v of obj.vertices){
@@ -31,6 +32,11 @@ const toMyScene = function(objJSON){
         }
         for(const l of obj.lines){
             m.lines.push([l[0].vertexIndex - 1,l[1].vertexIndex - 1]);//obj中index从1开始，所以要减去1
+        }
+
+        for(const f of obj.faces){
+            f.vertices.map( v=>v.v = v.vertexIndex - 1);//obj中index从1开始，所以要减去1
+            m.faces.push(f);
         }
 
         scene.models.push(m);

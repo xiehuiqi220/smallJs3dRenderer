@@ -14,7 +14,9 @@ const PARAMS = {
   cameraX: 0,
   cameraY: 0,
   cameraZ: 10,
-  fieldOfView: 45
+  fieldOfView: 45,
+  vertexSize: 2,
+  wireframe: false
 };
 let Scene = null;
 
@@ -30,11 +32,17 @@ gui.add(PARAMS, "cameraX", -100, 100).onChange((v) => {
 gui.add(PARAMS, "cameraY", -100, 100).onChange((v) => {
   setCamera();
 });
-gui.add(PARAMS, "cameraZ", -100, 100).onChange((v) => {
+gui.add(PARAMS, "cameraZ", 0, 200).onChange((v) => {
   setCamera();
 });
 gui.add(PARAMS, "fieldOfView", 30, 90).onChange((v) => {
   setProjectionMode();
+});
+gui.add(PARAMS, "vertexSize",0,5).onChange((v) => {
+  myRender.vertexSize = v;
+});
+gui.add(PARAMS, "wireframe").onChange((v) => {
+  myRender.wireframe = v;
 });
 
 let canv = document.getElementById("myCanvas");
@@ -43,9 +51,10 @@ const CAN_WIDTH = 1200;
 const CAN_HEIGHT = 800;
 const ASPECT = CAN_WIDTH / CAN_HEIGHT;
 const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
-
 const myRender = new Renderer(myCanvas, {
-  log: PARAMS.log
+  log: PARAMS.log,
+  wireframe: PARAMS.wireframe,
+  vertexSize: PARAMS.vertexSize
 });
 
 const projectionMatrix = mat4.create();//投影矩阵

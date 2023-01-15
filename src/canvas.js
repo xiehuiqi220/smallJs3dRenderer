@@ -21,9 +21,9 @@ class Canvas {
   }
 
   //绘制一个顶点，用圆圈代替
-  drawPoint(x, y, label = "") {
+  drawPoint(x, y, size = 1, label = "") {
     const ctx = this.ctx;
-    const R = 3;
+    const R = size;
     ctx.beginPath();
     ctx.arc(x, y, R, 0, 2 * Math.PI, false);
     ctx.fillStyle = "red";
@@ -43,6 +43,29 @@ class Canvas {
     this.ctx.stroke();
   }
 
-  flush() {}
+  //绘制面
+  drawFace(points = [], wireframe = false) {
+    const start = points[0];
+
+    this.ctx.beginPath();
+    start.verticeWindowPosition && this.ctx.moveTo(start.verticeWindowPosition[0], start.verticeWindowPosition[1]);
+
+    for (var i = 1; i < points.length; i++) {
+      const p = points[i].verticeWindowPosition;
+      p && this.ctx.lineTo(p[0], p[1]);
+    }
+
+    if (wireframe) {
+      this.ctx.strokeStyle = "#fff";
+      this.ctx.closePath();
+      this.ctx.stroke();
+    }
+    else {
+      this.ctx.fillStyle = "white";
+      this.ctx.fill();
+    }
+  }
+
+  flush() { }
 }
 export { Canvas };

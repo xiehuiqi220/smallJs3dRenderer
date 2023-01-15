@@ -5,6 +5,8 @@ class Renderer {
   constructor(canvas,options = {}) {
     this.myCanvas = canvas;
     this.showLog = options.showLog;
+    this.wireframe = options.wireframe;
+    this.vertexSize = options.vertexSize;
   }
 
   ndcToScreen(glPos) {
@@ -19,7 +21,7 @@ class Renderer {
     const models = scene.models || [];
     for (const obj of models) {
       if (obj.hidden) continue;
-      const clip = [];
+      const verticesInWindow = [];
 
       //绘制顶点
       obj.vertices = obj.vertices || [];
@@ -54,8 +56,8 @@ class Renderer {
 
         //console.log(glPos);
         this.ndcToScreen(glPos);
-        this.myCanvas.drawPoint(glPos[0], glPos[1]);
-        clip.push(glPos);
+        this.myCanvas.drawPoint(glPos[0], glPos[1],this.vertexSize);
+        verticesInWindow.push(glPos);
       });
 
       //绘制直线
@@ -64,11 +66,24 @@ class Renderer {
         const start = line[0];
         const end = line[1];
         this.myCanvas.drawLine(
-          clip[start][0],
-          clip[start][1],
-          clip[end][0],
-          clip[end][1]
+          verticesInWindow[start][0],
+          verticesInWindow[start][1],
+          verticesInWindow[end][0],
+          verticesInWindow[end][1]
         );
+      });
+
+      //绘制面，可能是三角面，也可能是四边面
+      obj.faces = obj.faces || [];
+      obj.faces.forEach((f) => {
+        const vs = f.vertices || [];
+        vs.map((v) => {
+          v.verticeWindowPosition = verticesInWindow[v.v];
+          if(!v.verticeWindowPosition){
+            console.warn("vertex index out of bound",v.v)
+          }
+        });
+        this.myCanvas.drawFace(vs,this.wireframe);
       });
     }
   }
