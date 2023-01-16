@@ -64,10 +64,10 @@ const SceneExample = {
       faces: [
         {
           vertices: [
-            { v: 0 },
-            { v: 1 },
-            { v: 3 },
-            { v: 2 }
+            { __vi: 0 },
+            { __vi: 1 },
+            { __vi: 3 },
+            { __vi: 2 }
           ]
         }
       ]

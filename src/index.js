@@ -32,7 +32,7 @@ gui.add(PARAMS, "cameraX", -100, 100).onChange((v) => {
 gui.add(PARAMS, "cameraY", -100, 100).onChange((v) => {
   setCamera();
 });
-gui.add(PARAMS, "cameraZ", 0, 200).onChange((v) => {
+const ctrlCameraZ = gui.add(PARAMS, "cameraZ", 0, 200).onChange((v) => {
   setCamera();
 });
 gui.add(PARAMS, "fieldOfView", 30, 90).onChange((v) => {
@@ -101,8 +101,19 @@ function animate() {
 function setSceneData(){
   Scene = SceneExample;
 
+  //接收加载obj文件的信号，摄影机做适配，能看到物体
   window.addEventListener("changeScene",function(e){
     Scene = e.detail;
+    const MAX_Y = Scene.__MAX_Y;
+    const MIN_Y = Scene.__MIN_Y;
+
+    const MAX_ABS_Y = Math.max(Math.abs(MAX_Y),Math.abs(MIN_Y));
+    log("scene max abs Y",MAX_ABS_Y);
+    const dist = MAX_ABS_Y / Math.tan(Math.PI * 45 / 360) * 1.1;//乘以倍数是增长dist，使得视野上下还有一些空间
+    log("adapt cameraZ",dist);
+    PARAMS.cameraZ = dist;
+    ctrlCameraZ.updateDisplay();
+    setCamera();
   });
 }
 

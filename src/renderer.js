@@ -9,7 +9,8 @@ class Renderer {
     this.vertexSize = options.vertexSize;
   }
 
-  ndcToScreen(glPos) {
+  //裁剪空间坐标转换为画布窗口坐标
+  clip2creen(glPos) {
     glPos[0] = (glPos[0] / glPos[3]) * this.myCanvas.width / 2 + this.myCanvas.width / 2;
     glPos[1] = (-glPos[1] / glPos[3]) * this.myCanvas.height / 2 + this.myCanvas.height / 2;
     return glPos;
@@ -26,7 +27,7 @@ class Renderer {
       //绘制顶点
       obj.vertices = obj.vertices || [];
       obj.vertices.forEach((vertex) => {
-        vertex[3] = 1;//增加xyzw的w，默认为1
+        vertex[3] = 1;//增加xyzw的w，默认为1，转换为齐次坐标
         if (!obj.translate) {
           obj.translate = [0, 0, 0];//一致性处理
         } 
@@ -55,7 +56,7 @@ class Renderer {
         //console.log("after project", glPos);
 
         //console.log(glPos);
-        this.ndcToScreen(glPos);
+        this.clip2creen(glPos);
         this.myCanvas.drawPoint(glPos[0], glPos[1],this.vertexSize);
         verticesInWindow.push(glPos);
       });
@@ -78,9 +79,9 @@ class Renderer {
       obj.faces.forEach((f) => {
         const vs = f.vertices || [];
         vs.map((v) => {
-          v.verticeWindowPosition = verticesInWindow[v.v];
-          if(!v.verticeWindowPosition){
-            console.warn("vertex index out of bound",v.v)
+          v.__verticeWindowPosition = verticesInWindow[v.__vi];
+          if(!v.__verticeWindowPosition){
+            console.warn("vertex index out of range",v.__vi);
           }
         });
         this.myCanvas.drawFace(vs,this.wireframe);

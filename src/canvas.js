@@ -22,6 +22,9 @@ class Canvas {
 
   //绘制一个顶点，用圆圈代替
   drawPoint(x, y, size = 1, label = "") {
+    if(!size){
+      return false;
+    }
     const ctx = this.ctx;
     const R = size;
     ctx.beginPath();
@@ -48,10 +51,10 @@ class Canvas {
     const start = points[0];
 
     this.ctx.beginPath();
-    start.verticeWindowPosition && this.ctx.moveTo(start.verticeWindowPosition[0], start.verticeWindowPosition[1]);
+    start.__verticeWindowPosition && this.ctx.moveTo(start.__verticeWindowPosition[0], start.__verticeWindowPosition[1]);
 
     for (var i = 1; i < points.length; i++) {
-      const p = points[i].verticeWindowPosition;
+      const p = points[i].__verticeWindowPosition;
       p && this.ctx.lineTo(p[0], p[1]);
     }
 
