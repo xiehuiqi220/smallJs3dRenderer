@@ -1,4 +1,4 @@
-import ObjFileParser from 'obj-file-parser';
+import ObjFileParser from './obj-file-parser';
 
 function ObjParser(txt) {
     const objFile = new ObjFileParser(txt);

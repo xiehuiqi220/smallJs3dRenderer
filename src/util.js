@@ -1,5 +1,5 @@
-function log(a1,a2){
-    console.log(a1,a2);
+function log(){
+    console.log.apply(console,arguments);
 }
 
 export { log };

@@ -5,10 +5,19 @@
   <title>Parcel Sandbox</title>
   <meta charset="UTF-8" />
   <style>
+    body {
+      margin:0;
+    }
     form {
       position: absolute;
+      width:245px;
       right: 0;
-      top: 250px;
+      box-sizing: border-box;
+      top: 200px;
+      color: white;
+      border: 1px solid white;
+      margin-right: 15px;
+      padding: 5px;
     }
   </style>
   <script src="src/loader/obj.js"></script>
@@ -17,6 +26,7 @@
 <body>
   <canvas id="myCanvas" width="400" height="400"> </canvas>
   <form enctype="multipart/form-data">
+    <label for="upload">upload a obj file</label><br />
     <input id="upload" type="file" accept=".obj" name="files">
   </form>
   <script>

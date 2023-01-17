@@ -6,49 +6,49 @@ import { log } from "./util";
 import { Canvas } from "./canvas.js";
 import { mat4, vec3, vec4 } from "gl-matrix";
 import * as dat from 'dat.gui';
+import Stats from 'stats.js';
+
+//初始化gui
+var stats = new Stats();
+stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild( stats.dom );
 
 const gui = new dat.GUI();
 const PARAMS = {
-  projectionMode: 1, //投影模式，1透视 0正交
+  projectMode: 1, //投影模式，1透视 0正交
   showLog: false, //显示日志
   cameraX: 0,
   cameraY: 0,
   cameraZ: 10,
   fieldOfView: 45,
   vertexSize: 2,
-  wireframe: false
+  wireframe: false,
+  autoRotate: true
 };
+
 let Scene = null;
 
-gui.add(PARAMS, 'projectionMode', { "透视": 1, "正交": 0 }).onChange((v) => {
+gui.add(PARAMS, 'projectMode', { "Perspective 透视": 1, "Orthogonal 正交": 0 }).onChange((v) => {
   setProjectionMode();
 });
 gui.add(PARAMS, "showLog").onChange((v) => {
   myRender.showLog = v;
 });
-gui.add(PARAMS, "cameraX", -100, 100).onChange((v) => {
-  setCamera();
-});
-gui.add(PARAMS, "cameraY", -100, 100).onChange((v) => {
-  setCamera();
-});
-const ctrlCameraZ = gui.add(PARAMS, "cameraZ", 0, 200).onChange((v) => {
-  setCamera();
-});
 gui.add(PARAMS, "fieldOfView", 30, 90).onChange((v) => {
   setProjectionMode();
 });
-gui.add(PARAMS, "vertexSize",0,5).onChange((v) => {
+gui.add(PARAMS, "vertexSize", 0, 5).onChange((v) => {
   myRender.vertexSize = v;
 });
 gui.add(PARAMS, "wireframe").onChange((v) => {
   myRender.wireframe = v;
 });
+gui.add(PARAMS, "autoRotate");
 
 let canv = document.getElementById("myCanvas");
 //创建无任何颜色的纯净画布
-const CAN_WIDTH = 1200;
-const CAN_HEIGHT = 800;
+const CAN_WIDTH = window.innerWidth || 1200;
+const CAN_HEIGHT = window.innerHeight || 800;
 const ASPECT = CAN_WIDTH / CAN_HEIGHT;
 const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
 const myRender = new Renderer(myCanvas, {
@@ -64,7 +64,7 @@ const ORIGIN = [0, 0, 0]; //摄影机朝向，指向世界坐标原点
 
 //设置投影模式
 function setProjectionMode() {
-  if (PARAMS.projectionMode == 1) {
+  if (PARAMS.projectMode == 1) {
 
     const fieldOfView = (PARAMS.fieldOfView * Math.PI) / 180;
     const cameraNear = 1.0;
@@ -89,30 +89,36 @@ function setCamera() {
 }
 
 //运行动画
+let rotateDeg = 0;
 function animate() {
+  let t0 = performance.now();
+  stats.begin();
   mat4.lookAt(viewMatrix, cameraPosition, ORIGIN, Y_UP);
-  //console.log(viewMatrix);
-  //console.log(projectionMatrix);
+  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? 0.005 : 0);
+  //log(viewMatrix);
+  //log(projectionMatrix);
 
   myRender.render(Scene, viewMatrix, projectionMatrix);
-  setTimeout(animate, 50);
+  const duration = (performance.now() - t0);
+  stats.end();
+  myCanvas.showPerf({ duration });
+  requestAnimationFrame(animate);
 }
 
-function setSceneData(){
+function setSceneData() {
   Scene = SceneExample;
 
   //接收加载obj文件的信号，摄影机做适配，能看到物体
-  window.addEventListener("changeScene",function(e){
+  window.addEventListener("changeScene", function (e) {
     Scene = e.detail;
     const MAX_Y = Scene.__MAX_Y;
     const MIN_Y = Scene.__MIN_Y;
 
-    const MAX_ABS_Y = Math.max(Math.abs(MAX_Y),Math.abs(MIN_Y));
-    log("scene max abs Y",MAX_ABS_Y);
+    const MAX_ABS_Y = Math.max(Math.abs(MAX_Y), Math.abs(MIN_Y));
+    log("scene max abs Y", MAX_ABS_Y);
     const dist = MAX_ABS_Y / Math.tan(Math.PI * 45 / 360) * 1.1;//乘以倍数是增长dist，使得视野上下还有一些空间
-    log("adapt cameraZ",dist);
+    log("adapt cameraZ", dist);
     PARAMS.cameraZ = dist;
-    ctrlCameraZ.updateDisplay();
     setCamera();
   });
 }
