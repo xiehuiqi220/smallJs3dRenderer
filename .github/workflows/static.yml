@@ -21,6 +21,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # build with parcel bundler
+  build:
+    name: my build job
+    runs-on: ubuntu-latest
+    steps:
+      - name: build-parcel
+        run: |
+          echo build with parcel
+          npm install
+          npm run build
   # Single deploy job since we're just deploying
   deploy:
     environment:
