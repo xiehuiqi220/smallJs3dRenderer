@@ -8,6 +8,17 @@ class Canvas {
     this.clear();
   }
 
+  showPerf(obj){
+    const duration = obj.duration;
+    if(duration == 0)return;
+    const fps = parseInt(1000/duration);
+    const ms = duration.toFixed(2);
+
+    this.ctx.strokeStyle = "red";
+    this.ctx.font="12px Verdana";
+    this.ctx.strokeText(`dur: ${ms} ms, fps: ${fps}`,100,20);
+  }
+
   drawXY() {
     this.drawLine(0, this.height / 2, this.width, this.height / 2, "red");
     this.drawLine(this.width / 2, 0, this.width / 2, this.height, "green");
