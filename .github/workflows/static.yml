@@ -33,6 +33,7 @@ jobs:
           echo build with parcel
           npm install
           npm run build
+          ls -l
   # Single deploy job since we're just deploying
   deploy:
     environment:
@@ -42,11 +43,13 @@ jobs:
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v2
+      - name: List dir
+        run: ls -l
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: './dist/'
+          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
