@@ -1,2 +1,36 @@
-# smallrenderer
-Created with CodeSandbox
+# A small renderer baesd on js and canvas, without webgl
+
+## Brief
+
+I write this project for learn computer graphics, only use js and html canvas, without webgl, so perfomance is low, don't use it on reality render, [demo site](https://xiehuiqi220.github.io/smallrenderer/).
+
+本项目为学习3D图形学而设立，主要是巩固背后数学和绘图知识，使用纯js编写，仅依赖了一个矩阵运算库，未使用webgl，所以性能比较弱，请勿用于实际用途，[演示地址](https://xiehuiqi220.github.io/smallrenderer/)。
+
+### Features
+- wireframe render
+- obj files loader
+- auto rotate camera
+
+### Todo list
+- fragment shader, texture
+- phong light mode
+- orbit control
+
+## How to run
+```sh
+git clone https://github.com/xiehuiqi220/smallrenderer.git
+cd smallrenderer
+npm install
+npm run start
+```
+then will open a page on your browser, in this page, you can upload obj files or use example scene.
+
+[Open the demo site](https://xiehuiqi220.github.io/smallrenderer/)
+
+## Screenshots
+
+![](https://user-images.githubusercontent.com/1331211/213100140-9ee211ef-ca2e-41b1-b8d8-36e9384c3e60.png)
+
+
+![](https://user-images.githubusercontent.com/1331211/213100164-d2c69c14-8827-45dd-aa55-ea91bb862e01.png)
+
