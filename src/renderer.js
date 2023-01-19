@@ -1,5 +1,5 @@
 import { mat4, vec4 } from "gl-matrix";
-import { log } from "./util";
+import { log, rrgb } from "./util";
 
 class Renderer {
   constructor(canvas,options = {}) {
@@ -7,6 +7,7 @@ class Renderer {
     this.showLog = options.showLog;
     this.wireframe = options.wireframe;
     this.vertexSize = options.vertexSize;
+    this.randomFaceColor = options.randomFaceColor;
   }
 
   //裁剪空间坐标转换为画布窗口坐标
@@ -84,7 +85,12 @@ class Renderer {
             console.warn("vertex index out of range",v.__vi);
           }
         });
-        this.myCanvas.drawFace(vs,this.wireframe);
+        
+        if(this.randomFaceColor && !f.__rnd_color){
+          f.__rnd_color = rrgb();
+        }
+        const color = this.randomFaceColor ? f.__rnd_color : '#fff';  
+        this.myCanvas.drawFace(vs,this.wireframe,color);
       });
     }
   }

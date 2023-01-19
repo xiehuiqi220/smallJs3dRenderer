@@ -8,6 +8,7 @@ import { mat4, vec3, vec4 } from "gl-matrix";
 import * as dat from 'dat.gui';
 import Stats from 'stats.js';
 
+const DEFAULT_CAMERA_Z = 10;
 //初始化gui
 var stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -19,10 +20,11 @@ const PARAMS = {
   showLog: false, //显示日志
   cameraX: 0,
   cameraY: 0,
-  cameraZ: 10,
+  cameraZ: DEFAULT_CAMERA_Z,
   fieldOfView: 45,
-  vertexSize: 2,
+  vertexSize: 0,
   wireframe: false,
+  randomFaceColor: false,
   autoRotate: true
 };
 
@@ -43,6 +45,9 @@ gui.add(PARAMS, "vertexSize", 0, 5).onChange((v) => {
 gui.add(PARAMS, "wireframe").onChange((v) => {
   myRender.wireframe = v;
 });
+gui.add(PARAMS, "randomFaceColor").onChange((v) => {
+  myRender.randomFaceColor = v;
+});
 gui.add(PARAMS, "autoRotate");
 
 let canv = document.getElementById("myCanvas");
@@ -54,7 +59,8 @@ const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
 const myRender = new Renderer(myCanvas, {
   log: PARAMS.log,
   wireframe: PARAMS.wireframe,
-  vertexSize: PARAMS.vertexSize
+  vertexSize: PARAMS.vertexSize,
+  randomFaceColor: PARAMS.randomFaceColor
 });
 
 const projectionMatrix = mat4.create();//投影矩阵
@@ -111,6 +117,12 @@ function setSceneData() {
   //接收加载obj文件的信号，摄影机做适配，能看到物体
   window.addEventListener("changeScene", function (e) {
     Scene = e.detail;
+    if(!Scene){
+      Scene = SceneExample;
+      PARAMS.cameraZ = DEFAULT_CAMERA_Z;
+      setCamera();
+      return;
+    }
     const MAX_Y = Scene.__MAX_Y;
     const MIN_Y = Scene.__MIN_Y;
 

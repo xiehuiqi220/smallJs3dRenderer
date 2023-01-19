@@ -1,4 +1,5 @@
 import { CHANNEL_COUNT } from "./constants";
+import { rrgb } from "./util";
 
 class Canvas {
   constructor(canv, w = 800, h = 600) {
@@ -58,7 +59,7 @@ class Canvas {
   }
 
   //绘制面
-  drawFace(points = [], wireframe = false) {
+  drawFace(points = [], wireframe = false , color='#fff') {
     const start = points[0];
 
     this.ctx.beginPath();
@@ -75,7 +76,7 @@ class Canvas {
       this.ctx.stroke();
     }
     else {
-      this.ctx.fillStyle = "white";
+      this.ctx.fillStyle = color;
       this.ctx.fill();
     }
   }
