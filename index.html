@@ -13,7 +13,7 @@
       width:245px;
       right: 0;
       box-sizing: border-box;
-      top: 200px;
+      top: 240px;
       color: white;
       border: 1px solid white;
       margin-right: 15px;
@@ -27,30 +27,50 @@
   <canvas id="myCanvas" width="400" height="400"> </canvas>
   <form enctype="multipart/form-data">
     <label for="upload">upload a obj file</label><br />
-    <input id="upload" type="file" accept=".obj" name="files">
+    <input onChange="uploadFile(this.files)" id="upload" type="file" accept=".obj" name="files">
+    <div>
+      <select onChange="changeObj(this.value)">
+        <option value="">select obj example</option>
+        <option value="models/teapot.obj">teapot.obj</option>
+        <option value="models/CornellBox-Original.obj">CornellBox-Original.obj</option>
+        <option value="models/bunny.obj">bunny.obj</option>
+        <option value="models/african_head.obj">african_head.obj</option>
+        <option value="models/WaltHead.obj">WaltHead.obj</option>
+        <option value="models/female02/female02.obj">female02.obj</option>
+        <option value="models/male02/male02.obj">male02.obj</option>
+      </select>
+    </div>
     <div>
       <a href="https://github.com/xiehuiqi220/smallrenderer" target="_blank">github source code</a>
     </div>
   </form>
   <script>
-    function handleFileSelect(evt) {
-      let files = evt.target.files;
+    function transferObj(txt){
+      const scene = txt ? ObjParser(txt) : '';
+      window.dispatchEvent(new CustomEvent('changeScene', { detail: scene }));
+    }
+    function changeObj(path){
+      if(!path){
+        transferObj();
+        return;
+      }
+      const absUrl = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/'+path;
+      fetch(absUrl).then(r => r.text()).then(txt => {
+        transferObj(txt);
+      }).catch(ex=>alert(ex));
+    }
+    function uploadFile(files) {
       let f = files[0];
       if(!f)return;
       let reader = new FileReader();
       reader.onload = (function (theFile) {
         return function (e) {
           const txt = e.target.result;
-
-          const scene = ObjParser(txt);
-          console.log("after",scene);
-          window.dispatchEvent(new CustomEvent('changeScene', { detail: scene }));
+          transferObj(txt);
         };
       })(f);
       reader.readAsText(f);
     }
-
-    document.getElementById('upload').addEventListener('change', handleFileSelect, false);
   </script>
   <script src="src/index.js"></script>
 </body>
