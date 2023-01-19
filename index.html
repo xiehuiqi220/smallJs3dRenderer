@@ -6,11 +6,12 @@
   <meta charset="UTF-8" />
   <style>
     body {
-      margin:0;
+      margin: 0;
     }
+
     form {
       position: absolute;
-      width:245px;
+      width: 245px;
       right: 0;
       box-sizing: border-box;
       top: 240px;
@@ -27,9 +28,9 @@
   <canvas id="myCanvas" width="400" height="400"> </canvas>
   <form enctype="multipart/form-data">
     <label for="upload">upload a obj file</label><br />
-    <input onChange="uploadFile(this.files)" id="upload" type="file" accept=".obj" name="files">
+    <input id="upload" type="file" accept=".obj" name="files">
     <div>
-      <select onChange="changeObj(this.value)">
+      <select id="selFile">
         <option value="">select obj example</option>
         <option value="models/teapot.obj">teapot.obj</option>
         <option value="models/CornellBox-Original.obj">CornellBox-Original.obj</option>
@@ -45,23 +46,30 @@
     </div>
   </form>
   <script>
-    function transferObj(txt){
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function transferObj(txt) {
       const scene = txt ? ObjParser(txt) : '';
       window.dispatchEvent(new CustomEvent('changeScene', { detail: scene }));
     }
-    function changeObj(path){
-      if(!path){
+    function changeObj(evt) {
+      const path = evt.target.value;
+      if (!path) {
         transferObj();
         return;
       }
-      const absUrl = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/'+path;
+      const absUrl = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/' + path;
       fetch(absUrl).then(r => r.text()).then(txt => {
         transferObj(txt);
-      }).catch(ex=>alert(ex));
+      }).catch(ex => alert(ex));
     }
-    function uploadFile(files) {
+    function uploadFile(evt) {
+      const files = evt.target.files;
+
       let f = files[0];
-      if(!f)return;
+      if (!f) return;
       let reader = new FileReader();
       reader.onload = (function (theFile) {
         return function (e) {
@@ -71,6 +79,11 @@
       })(f);
       reader.readAsText(f);
     }
+
+    (function main() {
+      $('selFile').addEventListener('change', changeObj);
+      $('upload').addEventListener('change', uploadFile);
+    })();
   </script>
   <script src="src/index.js"></script>
 </body>
