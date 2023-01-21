@@ -2,7 +2,7 @@ import { mat4, vec4 } from "gl-matrix";
 import { log, rrgb } from "./util";
 
 class Renderer {
-  constructor(canvas,options = {}) {
+  constructor(canvas, options = {}) {
     this.myCanvas = canvas;
     this.showLog = options.showLog;
     this.wireframe = options.wireframe;
@@ -30,7 +30,7 @@ class Renderer {
         vertex[3] = 1;//增加xyzw的w，默认为1，转换为齐次坐标
         if (!obj.translate) {
           obj.translate = [0, 0, 0];//一致性处理
-        } 
+        }
         if (!obj.rotate) {
           obj.rotate = [0, 0, 0];//一致性处理
         }
@@ -57,7 +57,7 @@ class Renderer {
 
         //console.log(glPos);
         this.clip2creen(glPos);
-        this.myCanvas.drawVertex(glPos[0], glPos[1],this.vertexSize);
+        this.myCanvas.drawVertex(glPos[0], glPos[1], this.vertexSize);
         //this.myCanvas.flush();throw "xx";
         verticesInWindow.push(glPos);
       });
@@ -81,23 +81,22 @@ class Renderer {
         const vs = f.vertices || [];
         vs.map((v) => {
           v.__verticeWindowPosition = verticesInWindow[v.__vi];
-          if(!v.__verticeWindowPosition){
-            console.warn("vertex index out of range",v.__vi);
+          if (!v.__verticeWindowPosition) {
+            console.warn("vertex index out of range", v.__vi);
           }
         });
-        
-        if(this.randomFaceColor && !f.__rnd_color){
+
+        if (this.randomFaceColor && !f.__rnd_color) {
           f.__rnd_color = rrgb();
         }
-        const color = this.randomFaceColor ? f.__rnd_color : '#fff';  
-        this.myCanvas.drawFace(vs,this.wireframe,color);
+        const color = this.randomFaceColor ? f.__rnd_color : '#fff';
+        this.myCanvas.drawFace(vs, this.wireframe, color);
       });
-
     }
 
-    
-      //之前只是设置缓冲区像素点，现在呈现出来
-      this.myCanvas.flush();
+
+    //之前只是设置缓冲区像素点，现在呈现出来
+    this.myCanvas.flush();
   }
 }
 

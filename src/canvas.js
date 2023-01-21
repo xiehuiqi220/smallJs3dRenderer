@@ -1,12 +1,12 @@
 import { CHANNEL_COUNT } from "./constants";
-import { rrgb } from "./util";
+import { rrgb, aabb, is_point_inside_convex_polygon } from "./util";
 import { log } from "./util";
 
 class Canvas {
   constructor(canv, w = 800, h = 600) {
     this.width = canv.width = w;
     this.height = canv.height = h;
-    this.ctx = canv.getContext("2d",{willReadFrequently:true});
+    this.ctx = canv.getContext("2d", { willReadFrequently: true });
     this.imageData = null;
     this.clear();
   }
@@ -40,7 +40,8 @@ class Canvas {
 
   //绘制一个顶点，用圆圈代替
   setPixel(x, y, r = 255, g = 255, b = 255) {
-    x= parseInt(x);y=parseInt(y);
+    x = Math.round(x); //取整
+    y = Math.round(y);
     const imageData = this.imageData;
     const index = (x + y * imageData.width) * 4;
     imageData.data[index + 0] = r;
@@ -58,7 +59,7 @@ class Canvas {
   drawLine(x0, y0, x1, y1, r = 255, g = 255, b = 255) {
     let steep = false;
     if (Math.abs(x0 - x1) < Math.abs(y0 - y1)) {
-      [x0, y0] = [y0, x0];
+      [x0, y0] = [y0, x0];//swap
       [x1, y1] = [y1, x1];
       steep = true;
     }
@@ -86,17 +87,40 @@ class Canvas {
   }
 
   //绘制面
-  drawFace(points = [], wireframe = false, color = '#fff') {    
-    for (var i = 0; i < points.length-1; i++) {
+  drawFace(points = [], wireframe = false, color) {
+    const debug = false;
+    if (wireframe) {
+      this._drawWireframe(points);
+      return;
+    }
+    const bbox = aabb(points);
+
+    //遍历bbox围绕的矩形，判断每一个点是不是在多边形里面
+    for (var x = bbox.x0; x < bbox.x1; x++) {
+      for (var y = bbox.y0; y < bbox.y1; y++) {
+        const isInsider = is_point_inside_convex_polygon({ x, y }, points);
+        if (debug) {
+          isInsider == -1 && this.setPixel(x, y); //如果点在外面，就绘制，调试用
+        }
+        else isInsider == 1 && this.setPixel(x, y,color.r,color.g,color.b); //如果点在面里面，就绘制
+      }
+    }
+
+    debug && this.drawLine(bbox.x0, bbox.y0, bbox.x1, bbox.y1, 128, 0, 0);//绘制aabb的对角线
+  }
+
+  _drawWireframe(points = []) {
+    //先依次绘制各点连接的线
+    for (var i = 0; i < points.length - 1; i++) {
       const pFrom = points[i].__verticeWindowPosition;
-      const pTo = points[i+1].__verticeWindowPosition;
-      pFrom && pTo && this.drawLine(pFrom[0], pFrom[1],pTo[0],pTo[1]);
+      const pTo = points[i + 1].__verticeWindowPosition;
+      pFrom && pTo && this.drawLine(pFrom[0], pFrom[1], pTo[0], pTo[1]);
     }
 
     //连接尾部点与首点
     const pf = points[points.length - 1].__verticeWindowPosition;
     const pe = points[0].__verticeWindowPosition;
-    this.drawLine(pf[0], pf[1],pe[0],pe[1]);
+    this.drawLine(pf[0], pf[1], pe[0], pe[1]);
   }
 
   flush() {
