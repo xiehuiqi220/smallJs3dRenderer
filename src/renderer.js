@@ -6,7 +6,6 @@ class Renderer {
     this.myCanvas = canvas;
     this.showLog = options.showLog;
     this.wireframe = options.wireframe;
-    this.vertexSize = options.vertexSize;
     this.randomFaceColor = options.randomFaceColor;
   }
 
@@ -58,7 +57,8 @@ class Renderer {
 
         //console.log(glPos);
         this.clip2creen(glPos);
-        this.myCanvas.drawPoint(glPos[0], glPos[1],this.vertexSize);
+        this.myCanvas.drawVertex(glPos[0], glPos[1],this.vertexSize);
+        //this.myCanvas.flush();throw "xx";
         verticesInWindow.push(glPos);
       });
 
@@ -92,7 +92,12 @@ class Renderer {
         const color = this.randomFaceColor ? f.__rnd_color : '#fff';  
         this.myCanvas.drawFace(vs,this.wireframe,color);
       });
+
     }
+
+    
+      //之前只是设置缓冲区像素点，现在呈现出来
+      this.myCanvas.flush();
   }
 }
 

@@ -18,10 +18,10 @@ const toMyScene = function (objJSON) {
         alert('no vertex found');
         return false;
     }
-    const firstVertex = objJSON.models[0].vertices[0];
+
     const scene = {
-        __MAX_Y: firstVertex.y,//场景中所有顶点Y坐标最大值，用于确定场景边界
-        __MIN_Y: firstVertex.y,//场景中所有顶点Y坐标最小值
+        __MAX_Y: -Infinity,//场景中所有顶点Y坐标最大值，用于确定场景边界
+        __MIN_Y: Infinity,//场景中所有顶点Y坐标最小值
         models: []
     };
 
