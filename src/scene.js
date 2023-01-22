@@ -57,6 +57,12 @@ const SceneExample = {
             { __vi: 2, color: { r: 0, g: 255, b: 0 } },
             { __vi: 3, color: { r: 0, g: 0, b: 255 } }
           ]
+        },{
+          vertices: [
+            { __vi: 0, color: { r: 100, g: 100, b: 100 } },
+            { __vi: 1, color: { r: 100, g: 100, b: 100 } },
+            { __vi: 2, color: { r: 100, g: 100, b: 100 } }
+          ]
         }
       ]
     },
@@ -73,9 +79,9 @@ const SceneExample = {
       faces: [
         {
           vertices: [
-            { __vi: 0  , color: { r: 128, g: 0, b: 0 }},
-            { __vi: 1  , color: { r: 0, g: 128, b: 0 }},
-            { __vi: 3  , color: { r: 0, g: 0, b: 128 }}
+            { __vi: 0 },
+            { __vi: 1 },
+            { __vi: 3 }
           ]
         }, {
           vertices: [

@@ -8,6 +8,7 @@ class Canvas {
     this.height = canv.height = h;
     this.ctx = canv.getContext("2d", { willReadFrequently: true });
     this.imageData = null;
+    this.zBuffer = new Array(w * h);
     this.clear();
   }
 
@@ -33,17 +34,34 @@ class Canvas {
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, this.width, this.height);
     this.imageData = this.ctx.getImageData(0, 0, this.width, this.height);
+    this.zBuffer.fill(0);
 
     log('clear');
     this.drawXY();
   }
 
+  getZBuffer(x, y) {
+    x = Math.round(x); //取整
+    y = Math.round(y);
+    const index = x + y * this.imageData.width;
+    return this.zBuffer[index];
+  }
+
+  setZBuffer(x, y, v) {
+    x = Math.round(x); //取整
+    y = Math.round(y);
+    const index = x + y * this.imageData.width;
+    this.zBuffer[index] = v;
+  }
+
   //绘制一个顶点，用圆圈代替
+  //a透明度，在这里存储像素深度信息
   setPixel(x, y, r = 255, g = 255, b = 255) {
     x = Math.round(x); //取整
     y = Math.round(y);
     const imageData = this.imageData;
     const index = (x + y * imageData.width) * 4;
+
     imageData.data[index + 0] = r;
     imageData.data[index + 1] = g;
     imageData.data[index + 2] = b;
@@ -99,20 +117,26 @@ class Canvas {
       for (var y = bbox.y0; y < bbox.y1; y++) {
         let isInsider = false;//is_point_inside_convex_polygon({ x, y }, points);
         const params = barycentric([x, y], points);
-        isInsider = params.every(i => i >= 0);//若每个参数都大于0，说明在三角形内
+        isInsider = params.every(i => i >= 0);//若每个参数都大于等于0，说明在三角形内
 
-        if (!isInsider) {
-          //this.setPixel(x, y, 255, 255, 255); //如果点在面里面，就绘制
-          continue;//若点不在三角形内，则忽略
+        if (!isInsider) {//若点不在三角形内，则忽略
+          //this.setPixel(x, y, 255, 255, 255);
+          continue;
         }
 
         let vcolor = fcolor;//默认顶点颜色由参数指定
+        const vertexAttr = lerpPoints(params, points);
         //若未指定面顶点的颜色，则混合插值
         if (!fcolor) {
-          vcolor = lerpPoints("color", params, points);
+          vcolor = vertexAttr.color || { r: 255, g: 255, b: 255 };
         }
 
-        this.setPixel(x, y, vcolor.r, vcolor.g, vcolor.b); //如果点在面里面，就绘制
+        const newZ = vertexAttr.zDepth;
+        const oldZ = this.getZBuffer(x, y) || -Infinity;
+        if (newZ >= oldZ) {
+          this.setPixel(x, y, vcolor.r, vcolor.g, vcolor.b); //如果点的深度<以前点的深度，那么才绘制覆盖掉
+          this.setZBuffer(x, y, newZ);
+        }
       }
     }
 

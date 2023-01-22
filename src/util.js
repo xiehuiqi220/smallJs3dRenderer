@@ -93,17 +93,26 @@ function barycentric(p, points) {
 }
 
 //根据重心坐标插值某个点的所有值，如顶点颜色、z深度
-function lerpPoints(key, params, points) {
-    let result = { r: 0, g: 0, b: 0 };
-    for (var i = 0; i < points.length; i++) {
-        const v = points[i];
-        if(!v['color'])return false; //没有颜色，则返回null
-        result['r'] += v['color']['r'] * params[i];
-        result['g'] += v['color']['g'] * params[i];
-        result['b'] += v['color']['b'] * params[i];
+function lerpPoints(params, vertices) {
+    let color = { r: 0, g: 0, b: 0 };
+    let zDepth = 0;
+    for (var i = 0; i < vertices.length; i++) {
+        const v = vertices[i];
+
+        //处理颜色
+        if (!v['color']) {
+            color = false; //没有颜色，则返回null
+        } else {
+            color['r'] += v['color']['r'] * params[i];
+            color['g'] += v['color']['g'] * params[i];
+            color['b'] += v['color']['b'] * params[i];
+        }
+
+        //处理深度
+        zDepth += v.__verticeWindowPosition[2]/v.__verticeWindowPosition[3]*params[i];
     }
 
-    return result;
+    return { color,zDepth };
 }
 
 export { log, rrgb, aabb, is_point_inside_convex_polygon, barycentric, lerpPoints };

@@ -96,7 +96,7 @@ function animate() {
   let t0 = performance.now();
   stats.begin();
   mat4.lookAt(viewMatrix, cameraPosition, ORIGIN, Y_UP);
-  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? 0.005 : 0);
+  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? duration>100 ? 1 : 0.01 : 0);
   //log(viewMatrix);
   //log(projectionMatrix);
 
