@@ -4,7 +4,7 @@ import { Renderer } from "./renderer";
 import { Y_UP } from "./constants";
 import { log } from "./util";
 import { Canvas } from "./canvas.js";
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat4 } from "gl-matrix";
 import * as dat from 'dat.gui';
 import Stats from 'stats.js';
 
@@ -22,7 +22,6 @@ const PARAMS = {
   cameraY: 0,
   cameraZ: DEFAULT_CAMERA_Z,
   fieldOfView: 45,
-  vertexSize: 0,
   wireframe: false,
   randomFaceColor: false,
   autoRotate: true
@@ -39,9 +38,6 @@ gui.add(PARAMS, "showLog").onChange((v) => {
 gui.add(PARAMS, "fieldOfView", 30, 90).onChange((v) => {
   setProjectionMode();
 });
-gui.add(PARAMS, "vertexSize", 0, 5).onChange((v) => {
-  myRender.vertexSize = v;
-});
 gui.add(PARAMS, "wireframe").onChange((v) => {
   myRender.wireframe = v;
 });
@@ -52,8 +48,8 @@ gui.add(PARAMS, "autoRotate");
 
 let canv = document.getElementById("myCanvas");
 //创建无任何颜色的纯净画布
-const CAN_WIDTH = window.innerWidth || 1200;
-const CAN_HEIGHT = window.innerHeight || 800;
+const CAN_WIDTH = window._innerWidth || 800;
+const CAN_HEIGHT = window._innerHeight || 600;
 const ASPECT = CAN_WIDTH / CAN_HEIGHT;
 const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
 const myRender = new Renderer(myCanvas, {
@@ -100,7 +96,7 @@ function animate() {
   let t0 = performance.now();
   stats.begin();
   mat4.lookAt(viewMatrix, cameraPosition, ORIGIN, Y_UP);
-  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? 0.005 : 0);
+  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? duration>100 ? 1 : 0.01 : 0);
   //log(viewMatrix);
   //log(projectionMatrix);
 

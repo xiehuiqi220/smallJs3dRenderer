@@ -50,10 +50,25 @@ const SceneExample = {
         [1, 2],
         [1, 3],
         [2, 3]
+      ], faces: [
+        {
+          vertices: [
+            { __vi: 1, color: { r: 255, g: 0, b: 0 } },
+            { __vi: 2, color: { r: 0, g: 255, b: 0 } },
+            { __vi: 3, color: { r: 0, g: 0, b: 255 } }
+          ]
+        },{
+          vertices: [
+            { __vi: 0, color: { r: 100, g: 100, b: 100 } },
+            { __vi: 1, color: { r: 100, g: 100, b: 100 } },
+            { __vi: 2, color: { r: 100, g: 100, b: 100 } }
+          ]
+        }
       ]
     },
     {
       id: "plane",
+      hidden: 0,
       translate: [0, -2, 0],
       vertices: [
         [-2, 0, 2],
@@ -66,8 +81,13 @@ const SceneExample = {
           vertices: [
             { __vi: 0 },
             { __vi: 1 },
-            { __vi: 3 },
-            { __vi: 2 }
+            { __vi: 3 }
+          ]
+        }, {
+          vertices: [
+            { __vi: 0 , color: { r: 255, g: 0, b: 0 }},
+            { __vi: 2 , color: { r: 0, g: 255, b: 0 }},
+            { __vi: 3 , color: { r: 0, g: 0, b: 255 }}
           ]
         }
       ]
