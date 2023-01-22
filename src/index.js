@@ -4,7 +4,7 @@ import { Renderer } from "./renderer";
 import { Y_UP } from "./constants";
 import { log } from "./util";
 import { Canvas } from "./canvas.js";
-import { mat4, vec3, vec4 } from "gl-matrix";
+import { mat4 } from "gl-matrix";
 import * as dat from 'dat.gui';
 import Stats from 'stats.js';
 

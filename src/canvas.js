@@ -1,5 +1,5 @@
 import { CHANNEL_COUNT } from "./constants";
-import { rrgb, aabb, is_point_inside_convex_polygon } from "./util";
+import { rrgb, aabb, is_point_inside_convex_polygon, barycentric, lerpPoints } from "./util";
 import { log } from "./util";
 
 class Canvas {
@@ -87,8 +87,7 @@ class Canvas {
   }
 
   //绘制面
-  drawFace(points = [], wireframe = false, color) {
-    const debug = false;
+  drawFace(points = [], wireframe = false, fcolor) {
     if (wireframe) {
       this._drawWireframe(points);
       return;
@@ -98,15 +97,26 @@ class Canvas {
     //遍历bbox围绕的矩形，判断每一个点是不是在多边形里面
     for (var x = bbox.x0; x < bbox.x1; x++) {
       for (var y = bbox.y0; y < bbox.y1; y++) {
-        const isInsider = is_point_inside_convex_polygon({ x, y }, points);
-        if (debug) {
-          isInsider == -1 && this.setPixel(x, y); //如果点在外面，就绘制，调试用
+        let isInsider = false;//is_point_inside_convex_polygon({ x, y }, points);
+        const params = barycentric([x, y], points);
+        isInsider = params.every(i => i >= 0);//若每个参数都大于0，说明在三角形内
+
+        if (!isInsider) {
+          //this.setPixel(x, y, 255, 255, 255); //如果点在面里面，就绘制
+          continue;//若点不在三角形内，则忽略
         }
-        else isInsider == 1 && this.setPixel(x, y,color.r,color.g,color.b); //如果点在面里面，就绘制
+
+        let vcolor = fcolor;//默认顶点颜色由参数指定
+        //若未指定面顶点的颜色，则混合插值
+        if (!fcolor) {
+          vcolor = lerpPoints("color", params, points);
+        }
+
+        this.setPixel(x, y, vcolor.r, vcolor.g, vcolor.b); //如果点在面里面，就绘制
       }
     }
 
-    debug && this.drawLine(bbox.x0, bbox.y0, bbox.x1, bbox.y1, 128, 0, 0);//绘制aabb的对角线
+    //this.drawLine(bbox.x0, bbox.y0, bbox.x1, bbox.y1, 128, 0, 0);//绘制aabb的对角线
   }
 
   _drawWireframe(points = []) {

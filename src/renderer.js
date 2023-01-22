@@ -89,7 +89,7 @@ class Renderer {
         if (this.randomFaceColor && !f.__rnd_color) {
           f.__rnd_color = rrgb();
         }
-        const color = this.randomFaceColor ? f.__rnd_color : '#fff';
+        const color = this.randomFaceColor ? f.__rnd_color : null;
         this.myCanvas.drawFace(vs, this.wireframe, color);
       });
     }
