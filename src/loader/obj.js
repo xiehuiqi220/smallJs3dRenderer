@@ -1,4 +1,5 @@
 import ObjFileParser from './obj-file-parser';
+import MtlFileParser from './mtl-file-parser';
 
 function ObjParser(txt) {
     const objFile = new ObjFileParser(txt);
@@ -7,6 +8,14 @@ function ObjParser(txt) {
 
     const myScene = toMyScene(output);
     return myScene;
+}
+
+function MtlParser(txt){
+    const m = new MtlFileParser(txt);
+    const output = m.parse(); // s
+    console.log("origin mtl", output);
+
+    return output;
 }
 
 const toMyScene = function (objJSON) {
@@ -22,7 +31,7 @@ const toMyScene = function (objJSON) {
     const scene = {
         __MAX_Y: -Infinity,//场景中所有顶点Y坐标最大值，用于确定场景边界
         __MIN_Y: Infinity,//场景中所有顶点Y坐标最小值,
-
+        materialLibraries: objJSON.materialLibraries || [],
         models: []
     };
 
@@ -86,4 +95,5 @@ const toMyScene = function (objJSON) {
 }
 
 window.ObjParser = ObjParser;
-export { ObjParser };
+window.MtlParser = MtlParser;
+export { ObjParser,MtlParser };

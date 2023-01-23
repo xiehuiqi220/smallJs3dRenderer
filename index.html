@@ -37,6 +37,7 @@
         <option value="models/african_head.obj">african_head.obj</option>
         <option value="models/WaltHead.obj">WaltHead.obj</option>
         <option value="models/tree.obj">tree.obj</option>
+        <option value="models/scene.obj">scene.obj</option>
         <option value="models/female02/female02.obj">female02.obj</option>
         <option value="models/male02/male02.obj">male02.obj</option>
       </select>
@@ -46,13 +47,34 @@
     </div>
   </form>
   <script>
+    let leftLoadFileCount = 0;
+    let cacheObjTxt = '';
+    let cacheMtlTxt = '';
+    const ABS_PATH = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/';
+    let lastRequestPath = '';
     function $(id) {
       return document.getElementById(id);
     }
 
-    function transferObj(txt) {
-      const scene = txt ? ObjParser(txt) : '';
-      window.dispatchEvent(new CustomEvent('changeScene', { detail: scene }));
+    function transferObj(txtObj, txtMtl) {
+      const scene = txtObj ? ObjParser(txtObj) : '';
+      scene.materialLibraries = scene.materialLibraries || [];
+      $("selFile").disabled = false;
+      const mtlPath = scene.materialLibraries[0];
+      if (mtlPath) {
+        lastRequestPath = lastRequestPath.replace(/\/\w+\.obj$/g, '/' + mtlPath);
+        fetch(lastRequestPath).then(r => r.text()).catch(ex => alert(ex)).then(txtMtl => {
+          let mtl = null;
+          try{
+            mtl = MtlParser(txtMtl);
+          }catch(ex){
+            console.warn(ex);
+          }
+          window.dispatchEvent(new CustomEvent('changeScene', { detail: { scene, mtl } }));
+        });
+      } else {
+        window.dispatchEvent(new CustomEvent('changeScene', { detail: { scene, mtl: null } }));
+      }
     }
     function changeObj(evt) {
       const path = evt.target.value;
@@ -60,8 +82,9 @@
         transferObj();
         return;
       }
-      const absUrl = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/' + path;
-      fetch(absUrl).then(r => r.text()).catch(ex => alert(ex)).then(txt => {
+      lastRequestPath = ABS_PATH + path;
+      $("selFile").disabled = true;
+      fetch(lastRequestPath).then(r => r.text()).catch(ex => alert(ex)).then(txt => {
         transferObj(txt);
       });
     }
@@ -69,14 +92,14 @@
       const files = evt.target.files;
 
       let f = files[0];
+
       if (!f) return;
+
       let reader = new FileReader();
-      reader.onload = (function (theFile) {
-        return function (e) {
-          const txt = e.target.result;
-          transferObj(txt);
-        };
-      })(f);
+      reader.onload = function (e) {
+        const txt = e.target.result;
+        transferObj(txt);
+      };
       reader.readAsText(f);
     }
 
