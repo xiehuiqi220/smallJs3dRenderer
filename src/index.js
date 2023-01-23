@@ -23,7 +23,6 @@ const PARAMS = {
   cameraZ: DEFAULT_CAMERA_Z,
   fieldOfView: 45,
   wireframe: false,
-  randomFaceColor: false,
   autoRotate: true
 };
 
@@ -41,9 +40,6 @@ gui.add(PARAMS, "fieldOfView", 30, 90).onChange((v) => {
 gui.add(PARAMS, "wireframe").onChange((v) => {
   myRender.wireframe = v;
 });
-gui.add(PARAMS, "randomFaceColor").onChange((v) => {
-  myRender.randomFaceColor = v;
-});
 gui.add(PARAMS, "autoRotate");
 
 let canv = document.getElementById("myCanvas");
@@ -55,8 +51,7 @@ const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
 const myRender = new Renderer(myCanvas, {
   log: PARAMS.log,
   wireframe: PARAMS.wireframe,
-  vertexSize: PARAMS.vertexSize,
-  randomFaceColor: PARAMS.randomFaceColor
+  vertexSize: PARAMS.vertexSize
 });
 
 const projectionMatrix = mat4.create();//投影矩阵
@@ -124,7 +119,7 @@ function setSceneData() {
 
     const MAX_ABS_Y = Math.max(Math.abs(MAX_Y), Math.abs(MIN_Y));
     log("scene max abs Y", MAX_ABS_Y);
-    const dist = MAX_ABS_Y / Math.tan(Math.PI * 45 / 360) * 1.1;//乘以倍数是增长dist，使得视野上下还有一些空间
+    const dist = MAX_ABS_Y / Math.tan(Math.PI * 45 / 360) * 1.2;//乘以倍数是增长dist，使得视野上下还有一些空间
     log("adapt cameraZ", dist);
     PARAMS.cameraZ = dist;
     setCamera();

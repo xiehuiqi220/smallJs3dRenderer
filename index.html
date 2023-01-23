@@ -36,6 +36,7 @@
         <option value="models/bunny.obj">bunny.obj</option>
         <option value="models/african_head.obj">african_head.obj</option>
         <option value="models/WaltHead.obj">WaltHead.obj</option>
+        <option value="models/tree.obj">tree.obj</option>
         <option value="models/female02/female02.obj">female02.obj</option>
         <option value="models/male02/male02.obj">male02.obj</option>
       </select>
@@ -60,9 +61,9 @@
         return;
       }
       const absUrl = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/' + path;
-      fetch(absUrl).then(r => r.text()).then(txt => {
+      fetch(absUrl).then(r => r.text()).catch(ex => alert(ex)).then(txt => {
         transferObj(txt);
-      }).catch(ex => alert(ex));
+      });
     }
     function uploadFile(evt) {
       const files = evt.target.files;

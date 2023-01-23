@@ -54,13 +54,13 @@ const SceneExample = {
         {
           vertices: [
             { __vi: 1, color: { r: 255, g: 0, b: 0 } },
-            { __vi: 2, color: { r: 0, g: 255, b: 0 } },
-            { __vi: 3, color: { r: 0, g: 0, b: 255 } }
+            { __vi: 3, color: { r: 0, g: 255, b: 0 } },
+            { __vi: 2, color: { r: 0, g: 0, b: 255 } }
           ]
         },{
           vertices: [
             { __vi: 0, color: { r: 100, g: 100, b: 100 } },
-            { __vi: 1, color: { r: 100, g: 100, b: 100 } },
+            { __vi: 3, color: { r: 100, g: 100, b: 100 } },
             { __vi: 2, color: { r: 100, g: 100, b: 100 } }
           ]
         }
@@ -72,20 +72,15 @@ const SceneExample = {
       translate: [0, -2, 0],
       vertices: [
         [-2, 0, 2],
-        [-2, 0, -2],
         [2, 0, 2],
-        [2, 0, -2]
+        [2, 0, -2],
+        [-2, 0, -2]
       ],
       faces: [
         {
           vertices: [
-            { __vi: 0 },
-            { __vi: 1 },
-            { __vi: 3 }
-          ]
-        }, {
-          vertices: [
             { __vi: 0 , color: { r: 255, g: 0, b: 0 }},
+            { __vi: 1 , color: { r: 255, g: 255, b: 255 }},
             { __vi: 2 , color: { r: 0, g: 255, b: 0 }},
             { __vi: 3 , color: { r: 0, g: 0, b: 255 }}
           ]

@@ -1,4 +1,4 @@
-import { vec2 } from "gl-matrix";
+import { vec2,vec3 } from "gl-matrix";
 
 function log() {
     console.log.apply(console, arguments);
@@ -56,6 +56,11 @@ function is_point_inside_convex_polygon(query_point, vertices) {
     return (Math.abs(count_same_side_results) == num_sides_of_polygon) ? 1 : -1;
 }
 
+//计算三角形面积
+function getsArea(p1, p2, p3) {
+    return 0.5 * ((p1[0] * p2[1] - p2[0] * p1[1]) + (p2[0] * p3[1] - p3[0] * p2[1]) + (p3[0] * p1[1] - p1[0] * p3[1]));
+}
+
 //求三角形内某点的重心坐标，插值用，用于zbuffer、着色
 function barycentric(p, points) {
     const pLen = points.length;
@@ -92,10 +97,16 @@ function barycentric(p, points) {
     return params;
 }
 
-//根据重心坐标插值某个点的所有值，如顶点颜色、z深度
-function lerpPoints(params, vertices) {
+//根据三角形重心坐标插值内部某个点的所有属性，如顶点颜色、z深度
+function lerpFaceVertices(weights, vertices, scene, objIndex) {
+    if (weights.length < vertices.length) {
+        weights.push(0);//若点是4个点，参数只有3个，先补一个0，其实是不合法的
+    }
+
     let color = { r: 0, g: 0, b: 0 };
     let zDepth = 0;
+    let normal = null;
+    let uvw = null;
     for (var i = 0; i < vertices.length; i++) {
         const v = vertices[i];
 
@@ -103,16 +114,51 @@ function lerpPoints(params, vertices) {
         if (!v['color']) {
             color = false; //没有颜色，则返回null
         } else {
-            color['r'] += v['color']['r'] * params[i];
-            color['g'] += v['color']['g'] * params[i];
-            color['b'] += v['color']['b'] * params[i];
+            color['r'] += v['color']['r'] * weights[i];
+            color['g'] += v['color']['g'] * weights[i];
+            color['b'] += v['color']['b'] * weights[i];
         }
 
         //处理深度
-        zDepth += v.__verticeWindowPosition[2]/v.__verticeWindowPosition[3]*params[i];
+        zDepth += v.__verticeWindowPosition[2] / v.__verticeWindowPosition[3] * weights[i];
+
+        //顶点法线
+        if (v.vertexNormalIndex) {
+            const n = scene.models[objIndex].vertexNormals[v.__vni];
+            
+            if(!normal){
+                normal = { x: 0, y: 0, z: 0 };
+            }
+
+            normal.x += n.x * weights[i];
+            normal.y += n.y * weights[i];
+            normal.z += n.z * weights[i];
+        }
+
+        //处理纹理坐标
+        if (v.textureCoordsIndex) {
+            if(!uvw){
+                uvw = { u: 0, v: 0 };
+            }
+            const uv = scene.models[objIndex].textureCoords[v.__vui];
+            uvw.u += uv.u * weights[i];
+            uvw.v += uv.v * weights[i];
+        }
     }
 
-    return { color,zDepth };
+    return { color, zDepth, normal, uvw };
 }
 
-export { log, rrgb, aabb, is_point_inside_convex_polygon, barycentric, lerpPoints };
+//计算三角形法线
+function getNormal(p1,p2,p3){
+    const l1 = vec3.create();vec3.sub(l1,p2,p1);
+    const l2 = vec3.create();vec3.sub(l2,p3,p1);
+
+    const normal = vec3.create();
+    vec3.cross(normal,l1,l2);
+    vec3.normalize(normal,normal);
+    
+    return normal;
+}
+
+export { log, rrgb, aabb, is_point_inside_convex_polygon, barycentric, lerpFaceVertices,getNormal };

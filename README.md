@@ -8,11 +8,12 @@ I write this project for learn computer graphics, only use js and html canvas, w
 
 ### Features
 - wireframe render
+- zbuffer
 - obj files loader
 - auto rotate camera
 
 ### Todo list
-- fragment shader, texture
+- texture
 - phong light mode
 - orbit control
 
