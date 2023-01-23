@@ -44,8 +44,8 @@ gui.add(PARAMS, "autoRotate");
 
 let canv = document.getElementById("myCanvas");
 //创建无任何颜色的纯净画布
-const CAN_WIDTH = window._innerWidth || 800;
-const CAN_HEIGHT = window._innerHeight || 600;
+const CAN_WIDTH = window._innerWidth || 1280;
+const CAN_HEIGHT = window._innerHeight || 800;
 const ASPECT = CAN_WIDTH / CAN_HEIGHT;
 const myCanvas = new Canvas(canv, CAN_WIDTH, CAN_HEIGHT);
 const myRender = new Renderer(myCanvas, {
@@ -88,17 +88,12 @@ function setCamera() {
 //运行动画
 let rotateDeg = 0;
 function animate() {
-  let t0 = performance.now();
   stats.begin();
   mat4.lookAt(viewMatrix, cameraPosition, ORIGIN, Y_UP);
-  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? duration>100 ? 1 : 0.01 : 0);
-  //log(viewMatrix);
-  //log(projectionMatrix);
+  mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? 0.02 : 0);
 
   myRender.render(Scene, viewMatrix, projectionMatrix);
-  const duration = (performance.now() - t0);
   stats.end();
-  myCanvas.showPerf({ duration });
   requestAnimationFrame(animate);
 }
 
