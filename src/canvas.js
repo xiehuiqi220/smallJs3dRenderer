@@ -1,5 +1,7 @@
-import { CHANNEL_COUNT } from "./constants";
-import { rrgb, aabb, is_point_inside_convex_polygon, barycentric, lerpPoints } from "./util";
+import { vec3 } from "gl-matrix";
+
+import { WHITE_RGB } from "./constants";
+import { rrgb, aabb, is_point_inside_convex_polygon, barycentric, lerpFaceVertices } from "./util";
 import { log } from "./util";
 
 class Canvas {
@@ -8,6 +10,8 @@ class Canvas {
     this.height = canv.height = h;
     this.ctx = canv.getContext("2d", { willReadFrequently: true });
     this.imageData = null;
+    this.wireframe = false;
+    this.scene = null;//引用当前绘制的场景数据
     this.zBuffer = new Array(w * h);
     this.clear();
   }
@@ -59,6 +63,7 @@ class Canvas {
   setPixel(x, y, r = 255, g = 255, b = 255) {
     x = Math.round(x); //取整
     y = Math.round(y);
+    
     const imageData = this.imageData;
     const index = (x + y * imageData.width) * 4;
 
@@ -105,8 +110,8 @@ class Canvas {
   }
 
   //绘制面
-  drawFace(points = [], wireframe = false, fcolor) {
-    if (wireframe) {
+  drawFace(points = [], fnormal = false, fcolor = WHITE_RGB, objIndex) {
+    if (this.wireframe) {
       this._drawWireframe(points);
       return;
     }
@@ -116,8 +121,8 @@ class Canvas {
     for (var x = bbox.x0; x < bbox.x1; x++) {
       for (var y = bbox.y0; y < bbox.y1; y++) {
         let isInsider = false;//is_point_inside_convex_polygon({ x, y }, points);
-        const params = barycentric([x, y], points);
-        isInsider = params.every(i => i >= 0);//若每个参数都大于等于0，说明在三角形内
+        const weights = barycentric([x, y], points);
+        isInsider = weights.every(i => i >= 0);//若每个参数都大于等于0，说明在三角形内
 
         if (!isInsider) {//若点不在三角形内，则忽略
           //this.setPixel(x, y, 255, 255, 255);
@@ -125,16 +130,32 @@ class Canvas {
         }
 
         let vcolor = fcolor;//默认顶点颜色由参数指定
-        const vertexAttr = lerpPoints(params, points);
+        const vertexAttr = lerpFaceVertices(weights, points, this.scene, objIndex);
+        let densityWeight = 1;//光照强度加权，面法线和光线越垂直，则越强
+
+        let normal = vertexAttr.normal;//{x: 0.886292859837691, y: 0.2641827426526553, z: 0.3002285103627892} 单位向量
+        const uvw = vertexAttr.uvw;
+
+        if (!normal) {
+          normal = {x:fnormal[0],y:fnormal[1],z:fnormal[2]};
+        }
+
+        const n = vec3.fromValues(normal.x, normal.y, normal.z);
+        const light0 = vec3.fromValues(0, 0, 1);//模拟一个在z轴的平行光，注意不是点光，没有四方发散作用
+        const light1 = vec3.fromValues(0, 1, 0);//模拟一个在y轴的平行光
+        const light2 = vec3.fromValues(1, 0, 0);//模拟一个在y轴的平行光
+
+        densityWeight = (vec3.dot(n, light0)+vec3.dot(n, light1)+vec3.dot(n, light2))/1.8;
+
         //若未指定面顶点的颜色，则混合插值
         if (!fcolor) {
-          vcolor = vertexAttr.color || { r: 255, g: 255, b: 255 };
+          vcolor = vertexAttr.color || WHITE_RGB;
         }
 
         const newZ = vertexAttr.zDepth;
         const oldZ = this.getZBuffer(x, y) || -Infinity;
-        if (newZ >= oldZ) {
-          this.setPixel(x, y, vcolor.r, vcolor.g, vcolor.b); //如果点的深度<以前点的深度，那么才绘制覆盖掉
+        if (newZ >= oldZ) {//如果点的深度<以前点的深度，那么才绘制覆盖掉
+          this.setPixel(x, y, vcolor.r * densityWeight, vcolor.g * densityWeight, vcolor.b * densityWeight);
           this.setZBuffer(x, y, newZ);
         }
       }

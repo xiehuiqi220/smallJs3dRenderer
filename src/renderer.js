@@ -1,12 +1,11 @@
 import { mat4, vec4 } from "gl-matrix";
-import { log, rrgb } from "./util";
+import { log, rrgb,getNormal } from "./util";
 
 class Renderer {
   constructor(canvas, options = {}) {
     this.myCanvas = canvas;
     this.showLog = options.showLog;
     this.wireframe = options.wireframe;
-    this.randomFaceColor = options.randomFaceColor;
   }
 
   //裁剪空间坐标转换为画布窗口坐标
@@ -18,6 +17,8 @@ class Renderer {
 
   render(scene, viewMatrix, projectionMatrix) {
     this.myCanvas.clear();
+    this.myCanvas.scene = scene;
+    this.myCanvas.wireframe = this.wireframe;
 
     const models = scene.models || [];
     for (const obj of models) {
@@ -57,7 +58,7 @@ class Renderer {
 
         //console.log(glPos);
         this.clip2creen(glPos);
-        this.myCanvas.drawVertex(glPos[0], glPos[1], this.vertexSize);
+        //this.myCanvas.drawVertex(glPos[0], glPos[1], this.vertexSize);
         //this.myCanvas.flush();throw "xx";
         verticesInWindow.push(glPos);
       });
@@ -75,10 +76,13 @@ class Renderer {
         );
       });
 
-      //绘制面，可能是三角面，也可能是四边面
+      //绘制面，四边面拆成2个三角形
       obj.faces = obj.faces || [];
       obj.faces.forEach((f) => {
         const vs = f.vertices || [];
+        //计算面的法线
+        const normal4face = getNormal(obj.vertices[f.vertices[0].__vi],obj.vertices[f.vertices[1].__vi],obj.vertices[f.vertices[2].__vi]);
+
         vs.map((v) => {
           v.__verticeWindowPosition = verticesInWindow[v.__vi];
           if (!v.__verticeWindowPosition) {
@@ -86,11 +90,16 @@ class Renderer {
           }
         });
 
-        if (this.randomFaceColor && !f.__rnd_color) {
-          f.__rnd_color = rrgb();
+        const color = null;
+
+        //如果是四边型，拆成2个三角形绘制
+        if (vs.length == 4) {
+          this.myCanvas.drawFace([vs[0], vs[1], vs[2]], normal4face, color,obj.__objIndex);
+          this.myCanvas.drawFace([vs[2], vs[3], vs[0]], normal4face, color,obj.__objIndex);
         }
-        const color = this.randomFaceColor ? f.__rnd_color : null;
-        this.myCanvas.drawFace(vs, this.wireframe, color);
+        else if (vs.length == 3) {
+          this.myCanvas.drawFace(vs, normal4face, color,obj.__objIndex);
+        } else throw `invalid face vertices ${vs.length}`;
       });
     }
 
