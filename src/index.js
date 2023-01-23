@@ -27,6 +27,7 @@ const PARAMS = {
 };
 
 let Scene = null;
+let Mtl = null;
 
 gui.add(PARAMS, 'projectMode', { "Perspective 透视": 1, "Orthogonal 正交": 0 }).onChange((v) => {
   setProjectionMode();
@@ -102,13 +103,18 @@ function setSceneData() {
 
   //接收加载obj文件的信号，摄影机做适配，能看到物体
   window.addEventListener("changeScene", function (e) {
-    Scene = e.detail;
+    Scene = e.detail.scene;
+    Mtl = e.detail.mtl;
+
     if(!Scene){
       Scene = SceneExample;
       PARAMS.cameraZ = DEFAULT_CAMERA_Z;
       setCamera();
       return;
     }
+
+    myRender.setMtl(Mtl);
+
     const MAX_Y = Scene.__MAX_Y;
     const MIN_Y = Scene.__MIN_Y;
 

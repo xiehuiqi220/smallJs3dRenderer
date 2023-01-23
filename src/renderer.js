@@ -6,6 +6,16 @@ class Renderer {
     this.myCanvas = canvas;
     this.showLog = options.showLog;
     this.wireframe = options.wireframe;
+    this.mtl = [];
+  }
+
+  setMtl(mtl){
+    this.mtl = mtl || [];
+  }
+
+  getMtlByName(name){
+    const mtl = this.mtl.find(m => m.name == name);
+    return mtl;
   }
 
   //裁剪空间坐标转换为画布窗口坐标
@@ -90,7 +100,17 @@ class Renderer {
           }
         });
 
-        const color = null;
+        let color = null;
+        const mtlName = f.material;
+        let mtlInfo = null;
+        if(mtlName && (mtlInfo = this.getMtlByName(mtlName))){
+          color = {
+            r:mtlInfo.Kd.red * 255,
+            g:mtlInfo.Kd.green * 255,
+            b:mtlInfo.Kd.blue * 255
+          }
+          debugger
+        }
 
         //如果是四边型，拆成2个三角形绘制
         if (vs.length == 4) {
