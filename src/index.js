@@ -91,6 +91,8 @@ let rotateDeg = 0;
 function animate() {
   stats.begin();
   mat4.lookAt(viewMatrix, cameraPosition, ORIGIN, Y_UP);
+
+  //摄影机自动绕y轴转动
   mat4.rotateY(viewMatrix, viewMatrix, rotateDeg += PARAMS.autoRotate ? 0.02 : 0);
 
   myRender.render(Scene, viewMatrix, projectionMatrix);

@@ -1,4 +1,4 @@
-import { mat4, vec4 } from "gl-matrix";
+import { mat4, vec3, vec4 } from "gl-matrix";
 import { log, rrgb,getNormal } from "./util";
 
 class Renderer {
@@ -11,6 +11,7 @@ class Renderer {
 
   setMtl(mtl){
     this.mtl = mtl || [];
+    this.myCanvas.mtl = this.mtl;
   }
 
   getMtlByName(name){
@@ -70,7 +71,7 @@ class Renderer {
         this.clip2creen(glPos);
         //this.myCanvas.drawVertex(glPos[0], glPos[1], this.vertexSize);
         //this.myCanvas.flush();throw "xx";
-        verticesInWindow.push(glPos);
+        verticesInWindow.push([Math.floor(glPos[0]),Math.floor(glPos[1]),glPos[2],glPos[3]]);//x和y要对应到画布的像素，所以必须取整，防止后面再取整
       });
 
       //绘制直线
@@ -91,7 +92,11 @@ class Renderer {
       obj.faces.forEach((f) => {
         const vs = f.vertices || [];
         //计算面的法线
+        //todo:顶点位置应该是modelView转换后的，而不是其物体坐标系位置
         const normal4face = getNormal(obj.vertices[f.vertices[0].__vi],obj.vertices[f.vertices[1].__vi],obj.vertices[f.vertices[2].__vi]);
+        // const deg = vec3.dot(normal4face,[0,0,1]); //计算法线和z位置摄影机（摄影机在变，所以不能固定）的交叉角度，如果小于0，说明是背对摄影机，可以剔除？凹多面体不行
+        // log('face normal',normal4face,deg);
+        //if(deg < 0)return false;
 
         vs.map((v) => {
           v.__verticeWindowPosition = verticesInWindow[v.__vi];
@@ -109,16 +114,15 @@ class Renderer {
             g:mtlInfo.Kd.green * 255,
             b:mtlInfo.Kd.blue * 255
           }
-          debugger
         }
 
         //如果是四边型，拆成2个三角形绘制
         if (vs.length == 4) {
-          this.myCanvas.drawFace([vs[0], vs[1], vs[2]], normal4face, color,obj.__objIndex);
-          this.myCanvas.drawFace([vs[2], vs[3], vs[0]], normal4face, color,obj.__objIndex);
+          this.myCanvas.drawFace([vs[0], vs[1], vs[2]], normal4face, color,obj.__objIndex,mtlInfo);
+          this.myCanvas.drawFace([vs[2], vs[3], vs[0]], normal4face, color,obj.__objIndex,mtlInfo);
         }
         else if (vs.length == 3) {
-          this.myCanvas.drawFace(vs, normal4face, color,obj.__objIndex);
+          this.myCanvas.drawFace(vs, normal4face, color,obj.__objIndex,mtlInfo);
         } else throw `invalid face vertices ${vs.length}`;
       });
     }

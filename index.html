@@ -40,8 +40,11 @@
         <option value="models/scene.obj">scene.obj</option>
         <option value="models/female02/female02.obj">female02.obj</option>
         <option value="models/male02/male02.obj">male02.obj</option>
+        <option value="models/sky-box.obj">sky-box.obj</option>
       </select>
     </div>
+    <ul id="texture-list">
+    </ul>
     <div>
       <a href="https://github.com/xiehuiqi220/smallrenderer" target="_blank">github source code</a>
     </div>
@@ -51,31 +54,66 @@
     let cacheObjTxt = '';
     let cacheMtlTxt = '';
     const ABS_PATH = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/';
+    const REG_OBJ = /\/\w+\.obj$/g;
+    const REG_MTL = /\/\w+\.mtl$/g;
     let lastRequestPath = '';
     function $(id) {
       return document.getElementById(id);
     }
 
+    //传递obj文件数据给渲染器
     function transferObj(txtObj, txtMtl) {
       const scene = txtObj ? ObjParser(txtObj) : '';
       scene.materialLibraries = scene.materialLibraries || [];
       $("selFile").disabled = false;
       const mtlPath = scene.materialLibraries[0];
-      if (mtlPath) {
-        lastRequestPath = lastRequestPath.replace(/\/\w+\.obj$/g, '/' + mtlPath);
+      if (mtlPath) {//若存在引用mtl文件，则请求mtl文件
+        lastRequestPath = lastRequestPath.replace(REG_OBJ, '/' + mtlPath);
         fetch(lastRequestPath).then(r => r.text()).catch(ex => alert(ex)).then(txtMtl => {
           let mtl = null;
-          try{
+          try {
             mtl = MtlParser(txtMtl);
-          }catch(ex){
+          } catch (ex) {
             console.warn(ex);
           }
           window.dispatchEvent(new CustomEvent('changeScene', { detail: { scene, mtl } }));
+
+          //遍历mtl下的材质，找到是否引用了图片
+          if (!mtl) return;
+
+          mtl.__imageData = {};
+          mtl.forEach(m => {
+            const imagePath = m.map_Kd.file;
+            if (!imagePath) return;
+            if (mtl.__imageData[imagePath]) return;//若图片数据已经存在，说明之前请求过了，则忽略
+
+            fetch(lastRequestPath.replace(REG_MTL, '/' + imagePath)).then(r => r.blob()).catch(ex => alert(ex)).then(blob => {
+              const imageObjectURL = URL.createObjectURL(blob);
+              const image = new Image();
+              image.src = imageObjectURL;
+              const li = document.createElement("li");
+              li.appendChild(document.createTextNode(imagePath));
+              const canvas = document.createElement("canvas");
+
+              image.onload = function () {
+                canvas.width = image.width;//canvas宽度和图片一致
+                canvas.height = image.height;
+                const txt = canvas.getContext('2d');
+                txt.drawImage(image, 0, 0);
+                const imageData = txt.getImageData(0, 0, image.width, image.height);
+                mtl.__imageData[imagePath] = imageData;
+              }
+              li.appendChild(canvas);
+              $("texture-list").appendChild(li);
+            });
+          });
         });
       } else {
         window.dispatchEvent(new CustomEvent('changeScene', { detail: { scene, mtl: null } }));
       }
     }
+
+    //选择obj文件
     function changeObj(evt) {
       const path = evt.target.value;
       if (!path) {
