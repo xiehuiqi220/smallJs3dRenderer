@@ -54,8 +54,8 @@
     let cacheObjTxt = '';
     let cacheMtlTxt = '';
     const ABS_PATH = 'https://raw.githubusercontent.com/xiehuiqi220/smallrenderer/main/';
-    const REG_OBJ = /\/\w+\.obj$/g;
-    const REG_MTL = /\/\w+\.mtl$/g;
+    const REG_OBJ = /[\w-_]+\.obj$/g;
+    const REG_MTL = /[\w-_]+\.mtl$/g;
     let lastRequestPath = '';
     function $(id) {
       return document.getElementById(id);
@@ -68,13 +68,15 @@
       $("selFile").disabled = false;
       const mtlPath = scene.materialLibraries[0];
       if (mtlPath) {//若存在引用mtl文件，则请求mtl文件
-        lastRequestPath = lastRequestPath.replace(REG_OBJ, '/' + mtlPath);
+        lastRequestPath = lastRequestPath.replace(REG_OBJ, mtlPath);
         fetch(lastRequestPath).then(r => r.text()).catch(ex => alert(ex)).then(txtMtl => {
           let mtl = null;
           try {
             mtl = MtlParser(txtMtl);
           } catch (ex) {
-            console.warn(ex);
+            alert(ex);
+            throw ex;
+            return;
           }
           window.dispatchEvent(new CustomEvent('changeScene', { detail: { scene, mtl } }));
 
@@ -87,7 +89,7 @@
             if (!imagePath) return;
             if (mtl.__imageData[imagePath]) return;//若图片数据已经存在，说明之前请求过了，则忽略
 
-            fetch(lastRequestPath.replace(REG_MTL, '/' + imagePath)).then(r => r.blob()).catch(ex => alert(ex)).then(blob => {
+            fetch(lastRequestPath.replace(REG_MTL,  imagePath)).then(r => r.blob()).catch(ex => alert(ex)).then(blob => {
               const imageObjectURL = URL.createObjectURL(blob);
               const image = new Image();
               image.src = imageObjectURL;

@@ -32,6 +32,7 @@ class MTLFile {
                 return; // Skip blank lines
             }
 
+            debugger
             switch (lineItems[0].toLowerCase()) {
                 case 'newmtl':  // Starts a new material, assigns a name to it
                     this._parseNewMTL(lineItems);
