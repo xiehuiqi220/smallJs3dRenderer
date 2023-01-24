@@ -171,7 +171,7 @@ class Canvas {
         let normal = vertexAttr.normal;//{x: 0.886292859837691, y: 0.2641827426526553, z: 0.3002285103627892} 单位向量
         const uvw = vertexAttr.uvw;
 
-        if (uvw && mtlInfo.map_Kd.file) {//若存在uv设定，且有贴图文件
+        if (uvw && mtlInfo && mtlInfo.map_Kd && mtlInfo.map_Kd.file) {//若存在uv设定，且有贴图文件
           pixelColor = this.texture2d(uvw.u, uvw.v, mtlInfo.map_Kd.file)
         }
 
@@ -182,7 +182,7 @@ class Canvas {
         const n = vec3.fromValues(normal.x, normal.y, normal.z);
         const light0 = vec3.fromValues(0, 0, 1);//模拟一个在z轴的平行光，注意不是点光，没有四方发散作用
         const light1 = vec3.fromValues(0, 1, 0);//模拟一个在y轴的平行光
-        const light2 = vec3.fromValues(1, 0, 0);//模拟一个在y轴的平行光
+        const light2 = vec3.fromValues(1, 0, 0);//模拟一个在x轴的平行光
 
         densityWeight = (vec3.dot(n, light0) + vec3.dot(n, light1) + vec3.dot(n, light2)) / 1.8;
 
