@@ -17,7 +17,7 @@ class Canvas {
   }
 
   //绘制xy轴
-  drawXY() {
+  drawXYAxis() {
     this.drawLine(0, this.height / 2, this.width, this.height / 2, 128, 0, 0);
     this.drawLine(this.width / 2, 0, this.width / 2, this.height, 0, 128, 0);
   }
@@ -29,30 +29,26 @@ class Canvas {
     this.imageData = this.ctx.getImageData(0, 0, this.width, this.height);
     this.zBuffer.fill(0);
 
-    log('clear');
-    this.drawXY();
+    //log('clear');
+    this.drawXYAxis();
   }
 
   getZBuffer(x, y) {
-    x = Math.round(x); //取整
-    y = Math.round(y);
+    x = Math.floor(x); //取整
+    y = Math.floor(y);
     const index = x + y * this.imageData.width;
     return this.zBuffer[index];
   }
 
   setZBuffer(x, y, v) {
-    x = Math.round(x); //取整
-    y = Math.round(y);
+    x = Math.floor(x); //取整
+    y = Math.floor(y);
     const index = x + y * this.imageData.width;
     this.zBuffer[index] = v;
   }
 
-  //绘制一个顶点，用圆圈代替
-  //a透明度，在这里存储像素深度信息
+  //设置点的颜色，x和y必须确保是整数
   setPixel(x, y, r = 255, g = 255, b = 255) {
-    x = Math.round(x); //取整
-    y = Math.round(y);
-    
     const imageData = this.imageData;
     const index = (x + y * imageData.width) * 4;
 
@@ -98,8 +94,52 @@ class Canvas {
     }
   }
 
+  uv(val) {
+    if (val > 1) val = val - Math.floor(val);//获取小数部分
+    if (val < -1) val = val - Math.ceil(val);//获取小数部分
+
+    if (val < 0) val = 1 - val;
+
+    return val;
+  }
+
+  //纹理采样
+  texture2d(u, v, imageName) {
+    if (!imageName) {
+      throw "invalid texture file: " + imageName;
+    }
+    const color = { r: 255, g: 255, b: 255 };
+
+    u = this.uv(u);
+    v = this.uv(v);
+
+    const mtl = this.mtl;
+    const imageData = mtl.__imageData[imageName];
+
+    if (!imageData) {//说明数据还没下载准备好
+      return color;;
+    }
+
+    const width = imageData.width;
+    const height = imageData.height;
+
+    u = width * u;//u是0到1之间的小数
+    v = height * (1 - v);//v是0到1之间的小数，注意uv的坐标是在图片左下角，而不是和canvas一样是在左上角，因此纵坐标要取反
+
+    u = Math.floor(u);//算完之后取整
+    v = Math.floor(v);
+
+    const index = (u + v * imageData.width) * 4;
+
+    color.r = imageData.data[index + 0];
+    color.g = imageData.data[index + 1];
+    color.b = imageData.data[index + 2];
+
+    return color;
+  }
+
   //绘制面
-  drawFace(points = [], fnormal = false, fcolor = WHITE_RGB, objIndex) {
+  drawFace(points = [], fnormal = false, fcolor = WHITE_RGB, objIndex, mtlInfo) {
     if (this.wireframe) {
       this._drawWireframe(points);
       return;
@@ -118,15 +158,25 @@ class Canvas {
           continue;
         }
 
-        let vcolor = fcolor;//默认顶点颜色由参数指定
+        let pixelColor = fcolor;//默认顶点颜色由参数指定
         const vertexAttr = lerpFaceVertices(weights, points, this.scene, objIndex);
+
+        //若未指定顶点的颜色，则混合插值，使用顶点颜色平均值
+        if (!pixelColor) {
+          pixelColor = vertexAttr.color || WHITE_RGB;
+        }
+
         let densityWeight = 1;//光照强度加权，面法线和光线越垂直，则越强
 
         let normal = vertexAttr.normal;//{x: 0.886292859837691, y: 0.2641827426526553, z: 0.3002285103627892} 单位向量
         const uvw = vertexAttr.uvw;
 
+        if (uvw && mtlInfo.map_Kd.file) {//若存在uv设定，且有贴图文件
+          pixelColor = this.texture2d(uvw.u, uvw.v, mtlInfo.map_Kd.file)
+        }
+
         if (!normal) {
-          normal = {x:fnormal[0],y:fnormal[1],z:fnormal[2]};
+          normal = { x: fnormal[0], y: fnormal[1], z: fnormal[2] };
         }
 
         const n = vec3.fromValues(normal.x, normal.y, normal.z);
@@ -134,17 +184,12 @@ class Canvas {
         const light1 = vec3.fromValues(0, 1, 0);//模拟一个在y轴的平行光
         const light2 = vec3.fromValues(1, 0, 0);//模拟一个在y轴的平行光
 
-        densityWeight = (vec3.dot(n, light0)+vec3.dot(n, light1)+vec3.dot(n, light2))/1.8;
-
-        //若未指定面顶点的颜色，则混合插值
-        if (!fcolor) {
-          vcolor = vertexAttr.color || WHITE_RGB;
-        }
+        densityWeight = (vec3.dot(n, light0) + vec3.dot(n, light1) + vec3.dot(n, light2)) / 1.8;
 
         const newZ = vertexAttr.zDepth;
         const oldZ = this.getZBuffer(x, y) || -Infinity;
         if (newZ >= oldZ) {//如果点的深度<以前点的深度，那么才绘制覆盖掉
-          this.setPixel(x, y, vcolor.r * densityWeight, vcolor.g * densityWeight, vcolor.b * densityWeight);
+          this.setPixel(x, y, pixelColor.r * densityWeight, pixelColor.g * densityWeight, pixelColor.b * densityWeight);
           this.setZBuffer(x, y, newZ);
         }
       }
