@@ -63,12 +63,12 @@
     }
 
     //传递obj文件数据给渲染器
-    function transferObj(txtObj, txtMtl) {
+    function transferObj(txtObj, needFetchMtl) {
       const scene = txtObj ? ObjParser(txtObj) : '';
       scene.materialLibraries = scene.materialLibraries || [];
       $("selFile").disabled = false;
       const mtlPath = scene.materialLibraries[0];
-      if (mtlPath) {//若存在引用mtl文件，则请求mtl文件
+      if (needFetchMtl && mtlPath) {//若存在引用mtl文件，则请求mtl文件
         lastRequestPath = lastRequestPath.replace(REG_OBJ, mtlPath);
         fetch(lastRequestPath).then(r => r.text()).catch(ex => alert(ex)).then(txtMtl => {
           let mtl = null;
@@ -88,6 +88,7 @@
           mtl.forEach(m => {
             const imagePath = m.map_Kd.file;
             if (!imagePath) return;
+            debugger
             if (mtl.__imageData[imagePath]) return;//若图片数据已经存在，说明之前请求过了，则忽略
 
             fetch(lastRequestPath.replace(REG_MTL,  imagePath)).then(r => r.blob()).catch(ex => alert(ex)).then(blob => {
@@ -126,7 +127,7 @@
       lastRequestPath = ABS_PATH + path;
       $("selFile").disabled = true;
       fetch(lastRequestPath).then(r => r.text()).catch(ex => alert(ex)).then(txt => {
-        transferObj(txt);
+        transferObj(txt,true);
       });
     }
     function uploadFile(evt) {
@@ -139,7 +140,7 @@
       let reader = new FileReader();
       reader.onload = function (e) {
         const txt = e.target.result;
-        transferObj(txt);
+        transferObj(txt,false);
       };
       reader.readAsText(f);
     }
