@@ -8,14 +8,9 @@ I write this project for learn computer graphics, only use js and html canvas, w
 
 ### Features
 - wireframe render
-- zbuffer
+- uv texture
 - obj files loader
 - auto rotate camera
-
-### Todo list
-- texture
-- phong light mode
-- orbit control
 
 ## How to run
 ```sh
@@ -30,8 +25,8 @@ then will open a page on your browser, in this page, you can upload obj files or
 
 ## Screenshots
 
-![](https://user-images.githubusercontent.com/1331211/213100140-9ee211ef-ca2e-41b1-b8d8-36e9384c3e60.png)
+![](https://user-images.githubusercontent.com/1331211/214857213-fe01237f-a148-4972-b39b-52d5550367a8.png)
 
 
-![](https://user-images.githubusercontent.com/1331211/213100164-d2c69c14-8827-45dd-aa55-ea91bb862e01.png)
+![](https://user-images.githubusercontent.com/1331211/214868296-e93e5f16-804c-45fa-b3aa-1c42ac111796.png)
 
