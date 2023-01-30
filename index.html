@@ -88,7 +88,7 @@
           mtl.forEach(m => {
             const imagePath = m.map_Kd.file;
             if (!imagePath) return;
-            debugger
+
             if (mtl.__imageData[imagePath]) return;//若图片数据已经存在，说明之前请求过了，则忽略
 
             fetch(lastRequestPath.replace(REG_MTL,  imagePath)).then(r => r.blob()).catch(ex => alert(ex)).then(blob => {
