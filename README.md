@@ -21,7 +21,7 @@ npm run start
 ```
 then will open a page on your browser, in this page, you can upload obj files or use example scene.
 
-[Open the demo site](https://xiehuiqi220.github.io/smallrenderer/)
+[Open the demo](https://xiehuiqi220.github.io/smallrenderer/)
 
 ## Screenshots
 
