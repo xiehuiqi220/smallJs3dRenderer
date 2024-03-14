@@ -14,14 +14,14 @@ I write this project for learn computer graphics, only use js and html canvas, w
 
 ## How to run
 ```sh
-git clone https://github.com/xiehuiqi220/smallrenderer.git
+git clone https://github.com/xiehuiqi220/smallJs3dRenderer.git
 cd smallrenderer
 npm install
 npm run start
 ```
 then will open a page on your browser, in this page, you can upload obj files or use example scene.
 
-[Open the demo](https://xiehuiqi220.github.io/smallrenderer/)
+[Open the demo](https://xiehuiqi220.github.io/smallJs3dRenderer/)
 
 ## Screenshots
 
